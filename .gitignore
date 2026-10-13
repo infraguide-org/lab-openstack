@@ -2,3 +2,4 @@ src/*.html
 removeme
 sftp-config.json*
 clouds.yaml
+slides/dist/

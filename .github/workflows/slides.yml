@@ -35,26 +35,7 @@ jobs:
           cp -r assets ../dist/assets
 
       - name: Create index.json and index.html
-        working-directory: slides/dist
-        run: |
-          rm -f README.*
-          decks=$(ls *.html | grep -v '^index.html$' | sed 's/\.html$//' | sort)
-          {
-            echo '{"decks":['
-            sep=""
-            for d in $decks; do
-              printf '%s{"name":"%s","html":"%s.html","pdf":"%s.pdf","pptx":"%s.pptx"}' "$sep" "$d" "$d" "$d" "$d"
-              sep=","
-            done
-            echo ']}'
-          } > index.json
-          {
-            echo '<!doctype html><meta charset="utf-8"><title>Slides</title><h1>Slides</h1><ul>'
-            for d in $decks; do
-              echo "<li>$d: <a href=\"$d.html\">html</a> <a href=\"$d.pdf\">pdf</a> <a href=\"$d.pptx\">pptx</a></li>"
-            done
-            echo '</ul>'
-          } > index.html
+        run: slides/scripts/make-index.sh "${GITHUB_REPOSITORY#*/lab-}" slides/src slides/dist
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

@@ -3,7 +3,7 @@ title: "OpenStack Automation"
 description: "Free OpenStack workshop slides: automating a private cloud with cloud-init, Ansible and Terraform."
 keywords: "openstack,automation,cloud-init,ansible,terraform,private cloud,workshop"
 author: infraguide.org
-backgroundImage: url(https://infraguide.org/assets/marp/background.jpg)
+backgroundImage: url(assets/background.jpg)
 transition: cover
 paginate: true
 footer: "[infraguide.org](https://infraguide.org) | Questions or need a guided workshop? → ping@infraguide.org | [Imprint](https://infraguide.org/imprint/) · [Privacy](https://infraguide.org/privacy/)"
@@ -29,7 +29,7 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 
 ---
 # Ansible
-![bg right:30% 50%](https://infraguide.org/assets/marp/pics/openstack-automation/icon-ansible.svg)
+![bg right:30% 50%](assets/pics/openstack-automation/icon-ansible.svg)
 
 ```bash
 # On testing node                                                           📋
@@ -54,7 +54,7 @@ ansible-galaxy collection install -r requirements.yml --force
 
 ---
 # Credentials
-![bg right:30% 50%](https://infraguide.org/assets/marp/pics/openstack-automation/icon-key.svg)
+![bg right:30% 50%](assets/pics/openstack-automation/icon-key.svg)
 ```bash
 cat > ~/automation-openrc.sh<<"EOF"
 
@@ -77,7 +77,7 @@ EOF
 ```
 ---
 # Credentials
-![bg right:30% 50%](https://infraguide.org/assets/marp/pics/openstack-automation/icon-key.svg)
+![bg right:30% 50%](assets/pics/openstack-automation/icon-key.svg)
 ```bash
 cat > clouds.yml <<EOF
 ---
@@ -99,7 +99,7 @@ EOF
 
 ---
 # Run
-![bg right:50% 30%](https://infraguide.org/assets/marp/pics/openstack-automation/icon-ansible.svg)
+![bg right:50% 30%](assets/pics/openstack-automation/icon-ansible.svg)
 ```bash
 # Create automation project
 source ~/admin-openrc.sh 
@@ -117,7 +117,7 @@ ansible-playbook playbooks/destroy-infra.yml
 
 ---
 # Terraform
-![bg right:50% 30%](https://infraguide.org/assets/marp/pics/openstack-automation/icon-terraform.svg)
+![bg right:50% 30%](assets/pics/openstack-automation/icon-terraform.svg)
 
 ```bash
 # Install Terraform on testing node                                         📋
@@ -152,7 +152,7 @@ TF_VAR_os_password=$OS_PASSWORD terraform apply -auto-approve
 
 ---
 # Testinfra
-![bg right:50% 30%](https://infraguide.org/assets/marp/pics/openstack-automation/logo-testinfra.svg)
+![bg right:50% 30%](assets/pics/openstack-automation/logo-testinfra.svg)
 
 ```bash
 cd ../testinfra/

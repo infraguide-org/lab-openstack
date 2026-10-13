@@ -5,7 +5,7 @@ description: "Free OpenStack workshop slides: automated testing of a private clo
 keywords:  openstack,testing,test automation,private cloud,workshop
 author: infraguide.org
 transition: cover
-backgroundImage: url(https://infraguide.org/assets/marp/background.jpg)
+backgroundImage: url(assets/background.jpg)
 paginate: true
 footer: "[infraguide.org](https://infraguide.org) | Questions or need a guided workshop? → ping@infraguide.org | [Imprint](https://infraguide.org/imprint/) · [Privacy](https://infraguide.org/privacy/)"
 style: |
@@ -43,7 +43,7 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 ---
 # Tempest
 ## **Install**
-![bg right:50% 30%](https://infraguide.org/assets/marp/pics/openstack-testing/logo-tempest.png)
+![bg right:50% 30%](assets/pics/openstack-testing/logo-tempest.png)
 [Release Notes Tempest v45](https://docs.openstack.org/releasenotes/tempest/v45.0.0.html)
 ```bash
 # Install Tempest on testing node                                           📋
@@ -60,7 +60,7 @@ pip install --proxy http://proxy.wrx.sckt.net:3128 -r \
 ---
 # Tempest
 ## **Configuration**
-![bg right:50% 30%](https://infraguide.org/assets/marp/pics/openstack-testing/logo-tempest.png)
+![bg right:50% 30%](assets/pics/openstack-testing/logo-tempest.png)
 ```bash
 # Copy admin-openrc.sh file from deployment to testing node                 📋
 scp ~/openstack/custom-config/wrx/admin-openrc.sh testing.mgmt:~/

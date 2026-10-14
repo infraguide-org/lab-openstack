@@ -1,18 +1,20 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 haproxy_single_external_frontend: "yes"
 
 # NOTE:
 # To make this work we need follliwing DNS entries
 # DNS for OpenStack
-# *.os.svc.wrx.sckt.net              -> default.os.svc.wrx.sckt.net
-# *.openstack.services.wrx.sckt.net  -> default.os.svc.wrx.sckt.net
-# default.os.svc.wrx.sckt.net        -> default.os5.svc.wrx.sckt.net
-# defaul.os5.svc.wrx.sckt.net        -> [IP]
+# *.os.svc.lab.nfgd.net              -> default.os.svc.lab.nfgd.net
+# *.openstack.services.lab.nfgd.net  -> default.os.svc.lab.nfgd.net
+# default.os.svc.lab.nfgd.net        -> default.os5.svc.lab.nfgd.net
+# defaul.os5.svc.lab.nfgd.net        -> [IP]
 #
 # # DNS for Ceph
-# *.ceph.services.wrx.sckt.net       -> default.ceph.svc.wrx.sckt.net
-# default.ceph.svc.wrx.sckt.net      -> default.ceph3.svc.wrx.sckt.net
-# default.ceph3.svc.wrx.sckt.net     -> [IP]
+# *.ceph.services.lab.nfgd.net       -> default.ceph.svc.lab.nfgd.net
+# default.ceph.svc.lab.nfgd.net      -> default.ceph3.svc.lab.nfgd.net
+# default.ceph3.svc.lab.nfgd.net     -> [IP]
 
 #
 # OpenStack

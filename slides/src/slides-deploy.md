@@ -331,8 +331,8 @@ table, thead, tbody, tr, th, td {
 </style>
 | | |
 | :--- | :--- |
-| Horizon     | [http://int.os.wrx.sckt.net](http://int.os.wrx.sckt.net/)      |
-| Skyline     | [http://int.os.wrx.sckt.net:9999](http://int.os.wrx.sckt.net/) |
+| Horizon     | [http://int.os.lab.nfgd.net](http://int.os.lab.nfgd.net/)      |
+| Skyline     | [http://int.os.lab.nfgd.net:9999](http://int.os.lab.nfgd.net/) |
 | CLI         | Command Line Interface                  |
 
 
@@ -696,9 +696,9 @@ table, thead, tbody, tr, th, td {
 
 | | |
 | :--- | :--- |
-| Grafana      | [http://int.os.wrx.sckt.net:3000](http://int.os.wrx.sckt.net:3000) |
-| Prometheus   | [http://int.os.wrx.sckt.net:9091](http://int.os.wrx.sckt.net:9091) |
-| Alertmanager | [http://int.os.wrx.sckt.net:9095](http://int.os.wrx.sckt.net:9091) |
+| Grafana      | [http://int.os.lab.nfgd.net:3000](http://int.os.lab.nfgd.net:3000) |
+| Prometheus   | [http://int.os.lab.nfgd.net:9091](http://int.os.lab.nfgd.net:9091) |
+| Alertmanager | [http://int.os.lab.nfgd.net:9095](http://int.os.lab.nfgd.net:9091) |
 
 ---
 # Expand / Deploy a New Service
@@ -718,7 +718,7 @@ kolla-ansible reconfigure   -i inventory/wrx --tags common
 ```
 
 Visit: 
-- http://int.os.wrx.sckt.net:5601
+- http://int.os.lab.nfgd.net:5601
 - visualize, create an index pattern
 - discover
 
@@ -964,7 +964,7 @@ netplan apply
 ![bg right:50% 30%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Copy the ssh key from deployment to testing node                          📋
-scp ~/.ssh/id_ecdsa* testing.mgmt.wrx.sckt.net:~/.ssh/
+scp ~/.ssh/id_ecdsa* testing.mgmt.lab.nfgd.net:~/.ssh/
 
 # Assign floating IPs to VMs
 openstack floating ip  create shared3010
@@ -1266,17 +1266,17 @@ openstack aggregate show windows
 - [OpenStack - Configuration Guides](https://docs.openstack.org/latest/configuration/)
 - [OpenStack - Releases](https://releases.openstack.org/)
 <br/>
-- [OpenStack - Horizon / Dashboard](http://int.os.wrx.sckt.net)
-- [OpenStack - Skyline / Dashboard](http://int.os.wrx.sckt.net:9999)
-- [OpenStack - Grafana / Monitoring](http://int.os.wrx.sckt.net:3000)
-- [OpenStack - Prometheus / Monitoring](http://int.os.wrx.sckt.net:9091)
-- [OpenStack - Alertmanager](http://int.os.wrx.sckt.net:9093)
+- [OpenStack - Horizon / Dashboard](http://int.os.lab.nfgd.net)
+- [OpenStack - Skyline / Dashboard](http://int.os.lab.nfgd.net:9999)
+- [OpenStack - Grafana / Monitoring](http://int.os.lab.nfgd.net:3000)
+- [OpenStack - Prometheus / Monitoring](http://int.os.lab.nfgd.net:9091)
+- [OpenStack - Alertmanager](http://int.os.lab.nfgd.net:9093)
 
 ---
 # Links
 - [Cloud-Init - Docs](https://docs.cloud-init.io/en/latest/reference/examples.html)
 <br/>
-- [Harbor - Registry](http://registry.wrx.sckt.net/)
+- [Harbor - Registry](http://registry.lab.nfgd.net/)
 
 ---
 

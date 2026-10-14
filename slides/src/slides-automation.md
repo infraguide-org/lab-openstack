@@ -38,18 +38,18 @@ python3 -m venv ~/venv/ansible
 source  ~/venv/ansible/bin/activate
 
 # Clone openstack-workshop git repository
-git clone -c http.proxy="http://proxy.wrx.sckt.net:3128"  \
-          -c https.proxy="http://proxy.wrx.sckt.net:3128" \
+git clone -c http.proxy="http://proxy.lab.nfgd.net:3128"  \
+          -c https.proxy="http://proxy.lab.nfgd.net:3128" \
           https://github.com/codecap/openstack-workshop.git
 
 # Install dependencies for Ansible
 cd  openstack-workshop/automation/ansible
-pip install --proxy=http://proxy.wrx.sckt.net:3128 -U pip
-pip install --proxy=http://proxy.wrx.sckt.net:3128 -r requirements.txt
+pip install --proxy=http://proxy.lab.nfgd.net:3128 -U pip
+pip install --proxy=http://proxy.lab.nfgd.net:3128 -r requirements.txt
 
 # Install dependencies via ansible-galaxy
-http_proxy=http://proxy.wrx.sckt.net:3128  \
-https_proxy=http://proxy.wrx.sckt.net:3128 \
+http_proxy=http://proxy.lab.nfgd.net:3128  \
+https_proxy=http://proxy.lab.nfgd.net:3128 \
 ansible-galaxy collection install -r requirements.yml --force
 ```
 
@@ -66,7 +66,7 @@ export OS_ENDPOINT_TYPE=internalURL
 export OS_REGION_NAME=RegionOne
 export OS_INTERFACE=internal
 export OS_AUTH_PLUGIN=password
-export OS_AUTH_URL=http://int.os.wrx.sckt.net:5000
+export OS_AUTH_URL=http://int.os.lab.nfgd.net:5000
 export OS_PROJECT_DOMAIN_NAME=Default
 export OS_TENANT_NAME=automation
 export OS_USERNAME=automation
@@ -85,7 +85,7 @@ cat > clouds.yml <<EOF
 clouds:
   wrx:
     auth:
-      auth_url:            "http://int.os.wrx.sckt.net:5000/v3"
+      auth_url:            "http://int.os.lab.nfgd.net:5000/v3"
       username:            "automation"
       password:            "automation"
       project_name:        "automation"
@@ -125,7 +125,7 @@ ansible-playbook playbooks/destroy-infra.yml
 KEYRING_PATH=/usr/share/keyrings/hashicorp-archive-keyring.gpg
 
 curl -fsSL https://apt.releases.hashicorp.com/gpg \
-  --proxy http://proxy.wrx.sckt.net:3128          \
+  --proxy http://proxy.lab.nfgd.net:3128          \
   | sudo gpg --dearmor -o $KEYRING_PATH
 
 echo "deb [signed-by=$KEYRING_PATH] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
@@ -136,8 +136,8 @@ cd ../terraform
 terraform --version
 
 # Download providers
-http_proxy=http://proxy.wrx.sckt.net:3128  \
-https_proxy=http://proxy.wrx.sckt.net:3128 \
+http_proxy=http://proxy.lab.nfgd.net:3128  \
+https_proxy=http://proxy.lab.nfgd.net:3128 \
 terraform init
 
 ls -la

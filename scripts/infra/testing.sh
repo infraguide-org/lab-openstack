@@ -1,4 +1,6 @@
 #!/bin/bash
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 
 tempest_version=45
 ADMIN_OPENRC_FILE="~/admin-openrc.sh"
@@ -58,7 +60,7 @@ debug = False
 lock_path = $workspace/tempest_lock
 
 [identity]
-uri_v3 = http://int.os.wrx.sckt.net:5000/v3
+uri_v3 = http://int.os.lab.nfgd.net:5000/v3
 auth_version = v3
 region = RegionOne
 v3_endpoint_type = internalURL

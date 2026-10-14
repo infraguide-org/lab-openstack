@@ -1,13 +1,15 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 #
 # NOTE: ceph is managed and deployed by cephadm now
 #       no need to prepare ceph hosts by kolla
 #       this is file is only for example on how to add groups/hosts to kolla-ansible
 #
 # [cephstrg]
-# cephmon01.mgmt.wrx.sckt.net api_interface=strg0
-# cephmon02.mgmt.wrx.sckt.net api_interface=strg0
-# cephmon03.mgmt.wrx.sckt.net api_interface=strg0
-# cephgra01.mgmt.wrx.sckt.net api_interface=strg0
+# cephmon01.mgmt.lab.nfgd.net api_interface=strg0
+# cephmon02.mgmt.lab.nfgd.net api_interface=strg0
+# cephmon03.mgmt.lab.nfgd.net api_interface=strg0
+# cephgra01.mgmt.lab.nfgd.net api_interface=strg0
 #
 # [baremetal:children]
 # cephstrg

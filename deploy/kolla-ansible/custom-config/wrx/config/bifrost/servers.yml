@@ -1,6 +1,8 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 # TODO
-compute01.mgmt.wrx.sckt.net:
+compute01.mgmt.lab.nfgd.net:
   ipv4_address:       10.14.0.64
   ipv4_subnet_mask:   255.255.255.0
   ipv4_gateway:       10.40.10.1
@@ -14,9 +16,9 @@ compute01.mgmt.wrx.sckt.net:
       ipmi_password: admin
       ipmi_username: admin
   instance_info:
-    image_source:   "http://sds.mgmt.wrx.sckt.net/builds/ubuntu-jammy.qcow2"
+    image_source:   "http://sds.mgmt.lab.nfgd.net/builds/ubuntu-jammy.qcow2"
     image_checksum: "ca7aac8feee72b0deb855cc8dea5e7e7"
-  name: compute01.mgmt.wrx.sckt.net
+  name: compute01.mgmt.lab.nfgd.net
   nics:
     - mac: 'bc:24:11:99:04:40'  # mgmt
   properties:

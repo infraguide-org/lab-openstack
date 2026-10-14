@@ -1,3 +1,5 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 [bifrost]
-# kollabifrost.mgmt.wrx.sckt.net network_interface=mgmt0
-# skipper01.mgmt.wrx.sckt.net ansible_host=10.14.0.18 ansible_user=admin network_interface=Vlan1400 docker_registry=quay.io
+# kollabifrost.mgmt.lab.nfgd.net network_interface=mgmt0
+# skipper01.mgmt.lab.nfgd.net ansible_host=10.14.0.18 ansible_user=admin network_interface=Vlan1400 docker_registry=quay.io

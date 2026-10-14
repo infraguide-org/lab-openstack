@@ -1,5 +1,7 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 enable_designate:                    "false"
 designate_backend:                   "bind9"
-designate_ns_record:                 [ "dns.wrx.sckt.net" ]
+designate_ns_record:                 [ "dns.lab.nfgd.net" ]
 designate_enable_notifications_sink: "yes"

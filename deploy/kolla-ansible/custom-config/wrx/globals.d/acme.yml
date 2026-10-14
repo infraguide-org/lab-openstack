@@ -1,4 +1,6 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 enable_letsencrypt: "yes"
-letsencrypt_email:  "admin@wrx.sckt.net"
+letsencrypt_email:  "admin@lab.nfgd.net"
 letsencrypt_external_fqdns: "{{[kolla_external_fqdn] + openstack_external_fqdns + ceph_external_fqdns + registry_fqdn}}"

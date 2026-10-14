@@ -1,24 +1,26 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 [control]
-controller01.mgmt.wrx.sckt.net
-controller02.mgmt.wrx.sckt.net
-controller03.mgmt.wrx.sckt.net
+controller01.mgmt.lab.nfgd.net
+controller02.mgmt.lab.nfgd.net
+controller03.mgmt.lab.nfgd.net
 
 [network]
-network01.mgmt.wrx.sckt.net
-network02.mgmt.wrx.sckt.net
-network03.mgmt.wrx.sckt.net
+network01.mgmt.lab.nfgd.net
+network02.mgmt.lab.nfgd.net
+network03.mgmt.lab.nfgd.net
 
 [hypervisor]
-compute01.mgmt.wrx.sckt.net
-compute02.mgmt.wrx.sckt.net
-compute11.mgmt.wrx.sckt.net
-# compute12.mgmt.wrx.sckt.net
+compute01.mgmt.lab.nfgd.net
+compute02.mgmt.lab.nfgd.net
+compute11.mgmt.lab.nfgd.net
+# compute12.mgmt.lab.nfgd.net
 
 [compute:children]
 hypervisor
 
 [monitoring]
-monitor01.mgmt.wrx.sckt.net
+monitor01.mgmt.lab.nfgd.net
 
 [storage:children]
 control

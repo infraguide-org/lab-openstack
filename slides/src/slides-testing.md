@@ -54,8 +54,8 @@ python3 -m venv ~/venv/tempest
 echo ""                                   >> ~/.profile
 echo "source ~/venv/tempest/bin/activate" >> ~/.profile
 source ~/.profile
-pip install -U pip --proxy http://proxy.wrx.sckt.net:3128
-pip install --proxy http://proxy.wrx.sckt.net:3128 -r \
+pip install -U pip --proxy http://proxy.lab.nfgd.net:3128
+pip install --proxy http://proxy.lab.nfgd.net:3128 -r \
   $WRX_RAW_BASE_PATH//testing/tempest/requirements.txt
 ```
 ---
@@ -70,9 +70,9 @@ source ~/admin-openrc.sh
 # The configuration script
 CONF_SCRIPT=$WRX_RAW_BASE_PATH/testing/tempest/configure.sh
 # Review
-curl --proxy http://proxy.wrx.sckt.net:3128 -L $CONF_SCRIPT
+curl --proxy http://proxy.lab.nfgd.net:3128 -L $CONF_SCRIPT
 # Run
-curl --proxy http://proxy.wrx.sckt.net:3128 -L $CONF_SCRIPT -sS | bash
+curl --proxy http://proxy.lab.nfgd.net:3128 -L $CONF_SCRIPT -sS | bash
 # Review generated config
 cd  ~/tempest-45
 cat etc/tempest.conf

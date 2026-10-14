@@ -1,14 +1,16 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 # TODO
 # kolla_internal_fqdn:        "master.{{internal_domain}}"
 kolla_internal_fqdn:        "int.{{internal_domain}}"
 # FIXME: remove to inventory
-internal_domain:            "os.wrx.sckt.net"
+internal_domain:            "os.lab.nfgd.net"
 
 # kolla_external_fqdn:        "os.services.{{external_domain}}"
 kolla_external_fqdn:        "{{keystone_external_fqdn}}"
 # FIXME: remove to inventory
-external_domain:            "wrx.sckt.net"
+external_domain:            "lab.nfgd.net"
 
 # kolla_container_engine:     docker
 #
@@ -16,7 +18,7 @@ external_domain:            "wrx.sckt.net"
 #
 # FIXME: remove to inventory
 docker_registry_insecure: "yes"
-docker_registry:          "registry.wrx.sckt.net"
+docker_registry:          "registry.lab.nfgd.net"
 docker_namespace:         "quay/openstack.kolla"
 # docker_registry_username:
 # docker_registry_password:

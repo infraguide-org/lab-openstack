@@ -1,3 +1,5 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 #
 # Kolla
@@ -9,11 +11,11 @@ kolla_external_vip_address: "10.34.10.35"
 # Ceph
 #
 ceph_rgw_hosts:
-  - { host: cephmon01.strg.wrx.sckt.net, ip: 10.20.21.128, port: 8080 }
-  - { host: cephmon02.strg.wrx.sckt.net, ip: 10.20.21.129, port: 8080 }
-  - { host: cephmon03.strg.wrx.sckt.net, ip: 10.20.21.130, port: 8080 }
+  - { host: cephmon01.strg.lab.nfgd.net, ip: 10.20.21.128, port: 8080 }
+  - { host: cephmon02.strg.lab.nfgd.net, ip: 10.20.21.129, port: 8080 }
+  - { host: cephmon03.strg.lab.nfgd.net, ip: 10.20.21.130, port: 8080 }
 ceph_cluster_fsid:      "1959570b-e2e3-4017-a5dc-c7606c5068fd"
-ceph_rgw_internal_fqdn: "s3.storage.wrx.sckt.net"
+ceph_rgw_internal_fqdn: "s3.storage.lab.nfgd.net"
 ceph_rgw_port:          "80"
 
 #
@@ -73,9 +75,9 @@ ironic_cleaning_network:     "ironic-provisioning"
 #
 octavia_network_type:                 provider
 octavia_amp_network_cidr:             "10.20.15.0/24"
-octavia_certs_server_ca_common_name:  server-ca.wrx.sckt.net
-octavia_certs_client_ca_common_name:  client-ca.wrx.sckt.net
-octavia_certs_client_req_common_name: client.wrx.sckt.net
+octavia_certs_server_ca_common_name:  server-ca.lab.nfgd.net
+octavia_certs_client_ca_common_name:  client-ca.lab.nfgd.net
+octavia_certs_client_req_common_name: client.lab.nfgd.net
 octavia_amp_network:
   name: lb-mgmt-net
   provider_network_type: flat
@@ -93,4 +95,4 @@ octavia_amp_network:
 # Designate
 #
 designate_ns_record:
-  - "dns.wrx.sckt.net"
+  - "dns.lab.nfgd.net"

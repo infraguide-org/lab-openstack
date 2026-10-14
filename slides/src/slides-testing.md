@@ -56,7 +56,7 @@ echo "source ~/venv/tempest/bin/activate" >> ~/.profile
 source ~/.profile
 pip install -U pip --proxy http://proxy.lab.nfgd.net:3128
 pip install --proxy http://proxy.lab.nfgd.net:3128 -r \
-  $LAB_RAW_BASE_PATH//testing/tempest/requirements.txt
+  $LAB_RAW_BASE_PATH/testing/tempest/requirements.txt
 ```
 ---
 # Tempest

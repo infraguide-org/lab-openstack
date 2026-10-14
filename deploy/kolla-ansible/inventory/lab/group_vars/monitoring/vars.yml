@@ -5,13 +5,13 @@ prometheus_ceph_mgr_exporter_endpoints: "{{ceph_rgw_hosts | map(attribute='ip') 
 
 prometheus_external_labels:
   env:      lab
-  owner:    sckt
+  owner:    nfgd
   location: fra
   source:   openstack
 
 prometheus_basic_auth_users_extra:
   - username: monitoring
-    password: "{{ 'wrx-sckt-net' | b64encode }}"
+    password: "{{ 'lab-nfgd-net' | b64encode }}"
     enabled:  yes
 
 prometheus_cmdline_extras: "--storage.tsdb.retention.size=8GB"

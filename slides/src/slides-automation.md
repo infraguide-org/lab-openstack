@@ -37,13 +37,13 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 python3 -m venv ~/venv/ansible
 source  ~/venv/ansible/bin/activate
 
-# Clone openstack-workshop git repository
+# Clone lab-openstack git repository
 git clone -c http.proxy="http://proxy.lab.nfgd.net:3128"  \
           -c https.proxy="http://proxy.lab.nfgd.net:3128" \
-          https://github.com/codecap/openstack-workshop.git
+          https://github.com/infraguide-org/lab-openstack.git
 
 # Install dependencies for Ansible
-cd  openstack-workshop/automation/ansible
+cd  lab-openstack/modules/automation/ansible
 pip install --proxy=http://proxy.lab.nfgd.net:3128 -U pip
 pip install --proxy=http://proxy.lab.nfgd.net:3128 -r requirements.txt
 

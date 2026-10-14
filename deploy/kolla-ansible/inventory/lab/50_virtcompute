@@ -1,6 +1,8 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 # GPU
 [virtcompute]
-# compute01.os5.tst.sckt.net
+# vcompute01.mgmt.lab.nfgd.net
 
 [compute:children]
 virtcompute

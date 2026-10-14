@@ -34,7 +34,7 @@ Network:
 
 OpenStack:
 
-![OpenStack](slides/src/assets/openstack-environment.drawio.svg)
+![OpenStack](slides/src/assets/full-environment.drawio.svg)
 
 Ceph:
 

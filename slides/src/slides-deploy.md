@@ -154,7 +154,7 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 
 ---
 # Environment Network
-![bg right:50% 90%](assets/openstack-environment.drawio.svg)
+![bg right:50% 90%](assets/full-environment.drawio.svg)
 
 ---
 # Air-Gapped Environment

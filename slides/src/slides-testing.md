@@ -1,4 +1,6 @@
 ---
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 
 title:  "OpenStack Testing"
 order: 4

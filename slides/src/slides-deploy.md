@@ -1,4 +1,6 @@
 ---
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 title:       "OpenStack Workshop Slides"
 order: 2
 description: "Free OpenStack workshop slides: Deploy and operate a multi-node OpenStack cloud."

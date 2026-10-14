@@ -1,4 +1,6 @@
 ---
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 title: "OpenStack Automation"
 order: 3
 description: "Free OpenStack workshop slides: automating a private cloud with cloud-init, Ansible and Terraform."

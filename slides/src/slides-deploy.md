@@ -1282,7 +1282,7 @@ openstack aggregate show windows
 
 # Feedback and contributions
 
-Found an error or want to contribute? Open a PR on [GitHub](https://github.com/codecap/infraguide/tree/main).
+Found an error or want to contribute? Open a PR on [GitHub](https://github.com/infraguide-org/lab-openstack/tree/main).
 
 More labs and cheat sheets: [infraguide.org](https://infraguide.org)
 

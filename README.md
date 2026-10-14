@@ -28,10 +28,6 @@ Overview:
 
 ![Environment](slides/src/assets/openstack/env.svg)
 
-Network:
-
-![Network](slides/src/assets/openstack-workshop.drawio.svg)
-
 OpenStack:
 
 ![OpenStack](slides/src/assets/full-environment.drawio.svg)

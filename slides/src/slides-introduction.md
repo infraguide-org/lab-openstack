@@ -1,5 +1,5 @@
 ---
-title: "OpenStack & Ceph Workshop: Introduction"
+title: "OpenStack Workshop: Introduction"
 order: 1
 description: "Free OpenStack workshop slides: introduction, prerequisites, overview and a guide"
 keywords: "openstack,workshop,introduction,prerequisites,overview,guide"

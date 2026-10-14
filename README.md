@@ -34,7 +34,7 @@ OpenStack:
 
 Ceph:
 
-![Ceph](slides/src/assets/ceph-environment.drawio.svg)
+![Ceph](slides/src/assets/environment.drawio.svg)
 
 ## Slides
 The slides are published on GitHub Pages: [infraguide-org.github.io/lab-openstack](https://infraguide-org.github.io/lab-openstack/)

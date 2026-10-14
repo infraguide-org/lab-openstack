@@ -56,7 +56,7 @@ echo "source ~/venv/tempest/bin/activate" >> ~/.profile
 source ~/.profile
 pip install -U pip --proxy http://proxy.lab.nfgd.net:3128
 pip install --proxy http://proxy.lab.nfgd.net:3128 -r \
-  $WRX_RAW_BASE_PATH//testing/tempest/requirements.txt
+  $LAB_RAW_BASE_PATH//testing/tempest/requirements.txt
 ```
 ---
 # Tempest
@@ -68,7 +68,7 @@ scp ~/openstack/custom-config/lab/admin-openrc.sh testing.mgmt:~/
 # On testing node source your openrc (credentials) file
 source ~/admin-openrc.sh
 # The configuration script
-CONF_SCRIPT=$WRX_RAW_BASE_PATH/testing/tempest/configure.sh
+CONF_SCRIPT=$LAB_RAW_BASE_PATH/testing/tempest/configure.sh
 # Review
 curl --proxy http://proxy.lab.nfgd.net:3128 -L $CONF_SCRIPT
 # Run

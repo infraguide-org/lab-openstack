@@ -1,5 +1,6 @@
 ---
 title: "OpenStack & Ceph Workshop: Introduction"
+order: 1
 description: "Free OpenStack workshop slides: introduction, prerequisites, overview and a guide"
 keywords: "openstack,workshop,introduction,prerequisites,overview,guide"
 author:  infraguide.org

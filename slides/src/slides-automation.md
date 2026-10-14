@@ -1,5 +1,6 @@
 ---
 title: "OpenStack Automation"
+order: 3
 description: "Free OpenStack workshop slides: automating a private cloud with cloud-init, Ansible and Terraform."
 keywords: "openstack,automation,cloud-init,ansible,terraform,private cloud,workshop"
 author: infraguide.org

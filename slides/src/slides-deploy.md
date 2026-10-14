@@ -1,5 +1,6 @@
 ---
 title:       "OpenStack Workshop Slides"
+order: 2
 description: "Free OpenStack workshop slides: Deploy and operate a multi-node OpenStack cloud."
 keywords:    "openstack,private cloud,workshop,workshops,operations,troubleshoouting deployment,operations,networking,monitoring,troubleshooting,automation,testing"
 author:      infraguide.org

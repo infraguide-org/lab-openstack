@@ -1,6 +1,7 @@
 ---
 
 title:  "OpenStack Testing"
+order: 4
 description: "Free OpenStack workshop slides: automated testing of a private cloud."
 keywords:  openstack,testing,test automation,private cloud,workshop
 author: infraguide.org

@@ -83,7 +83,7 @@ EOF
 cat > clouds.yml <<EOF
 ---
 clouds:
-  wrx:
+  lab:
     auth:
       auth_url:            "http://int.os.lab.nfgd.net:5000/v3"
       username:            "automation"

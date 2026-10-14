@@ -64,7 +64,7 @@ pip install --proxy http://proxy.lab.nfgd.net:3128 -r \
 ![bg right:50% 30%](assets/pics/openstack-testing/logo-tempest.png)
 ```bash
 # Copy admin-openrc.sh file from deployment to testing node                 📋
-scp ~/openstack/custom-config/wrx/admin-openrc.sh testing.mgmt:~/
+scp ~/openstack/custom-config/lab/admin-openrc.sh testing.mgmt:~/
 # On testing node source your openrc (credentials) file
 source ~/admin-openrc.sh
 # The configuration script

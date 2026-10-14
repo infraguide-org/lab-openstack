@@ -1,0 +1,9 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
+---
+#
+# Do not change these lines
+#
+# TODO
+env_name:           'lab'
+node_custom_config: "{{inventory_dir}}/../../custom-config/{{env_name}}/config"

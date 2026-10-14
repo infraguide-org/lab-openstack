@@ -240,7 +240,7 @@ source ~/.profile
 # Copy inventory file
 cp ~/venv/openstack/share/kolla-ansible/ansible/inventory/multinode inventory/
 
-# Patch inventory file and review inventory/wrx/ directory afterwards
+# Patch inventory file and review inventory/lab/ directory afterwards
 crudini --del inventory/multinode control
 crudini --del inventory/multinode network
 crudini --del inventory/multinode compute
@@ -250,9 +250,9 @@ crudini --del inventory/multinode loadbalancer:children
 
 # Prepare passwords
 cp ~/venv/openstack/share/kolla-ansible/etc_examples/kolla/passwords.yml \
-  custom-config/wrx/passwords.yml
+  custom-config/lab/passwords.yml
 
-kolla-genpwd -p custom-config/wrx/passwords.yml
+kolla-genpwd -p custom-config/lab/passwords.yml
 ```
 
 ---
@@ -261,20 +261,20 @@ kolla-genpwd -p custom-config/wrx/passwords.yml
 ```bash
 # Overview of kolla-ansible commands                                        📋
 
-kolla-ansible bootstrap-servers    -i inventory/wrx
-kolla-ansible octavia-certificates -i inventory/wrx
-kolla-ansible prechecks            -i inventory/wrx
-kolla-ansible pull                 -i inventory/wrx
-kolla-ansible deploy               -i inventory/wrx  -vvvv
-kolla-ansible post-deploy          -i inventory/wrx
-kolla-ansible check                -i inventory/wrx
-kolla-ansible destroy              -i inventory/wrx <--yes-i-really-really-mean-it>
-kolla-ansible mariadb_recovery     -i inventory/wrx
-kolla-ansible reconfigure          -i inventory/wrx
-kolla-ansible upgrade              -i inventory/wrx
-kolla-ansible stop                 -i inventory/wrx
-kolla-ansible deploy-containers    -i inventory/wrx
-kolla-ansible prune-images         -i inventory/wrx
+kolla-ansible bootstrap-servers    -i inventory/lab
+kolla-ansible octavia-certificates -i inventory/lab
+kolla-ansible prechecks            -i inventory/lab
+kolla-ansible pull                 -i inventory/lab
+kolla-ansible deploy               -i inventory/lab  -vvvv
+kolla-ansible post-deploy          -i inventory/lab
+kolla-ansible check                -i inventory/lab
+kolla-ansible destroy              -i inventory/lab <--yes-i-really-really-mean-it>
+kolla-ansible mariadb_recovery     -i inventory/lab
+kolla-ansible reconfigure          -i inventory/lab
+kolla-ansible upgrade              -i inventory/lab
+kolla-ansible stop                 -i inventory/lab
+kolla-ansible deploy-containers    -i inventory/lab
+kolla-ansible prune-images         -i inventory/lab
 ```
 
 ---
@@ -283,12 +283,12 @@ kolla-ansible prune-images         -i inventory/wrx
 ```bash
 # Prepare the kolla-ansible deployment                                      📋
 
-kolla-ansible bootstrap-servers    -i inventory/wrx
-kolla-ansible octavia-certificates -i inventory/wrx
-kolla-ansible prechecks            -i inventory/wrx
+kolla-ansible bootstrap-servers    -i inventory/lab
+kolla-ansible octavia-certificates -i inventory/lab
+kolla-ansible prechecks            -i inventory/lab
 
 # ⚠️ NOTE: this will take time
-kolla-ansible pull                 -i inventory/wrx
+kolla-ansible pull                 -i inventory/lab
 ```
 
 ---
@@ -298,11 +298,11 @@ kolla-ansible pull                 -i inventory/wrx
 # Prepare the kolla-ansible deployment                                      📋
 
 # ⚠️ NOTE: this will take time
-kolla-ansible deploy               -i inventory/wrx
+kolla-ansible deploy               -i inventory/lab
 
 # Post deployment steps
-kolla-ansible post-deploy          -i inventory/wrx
-kolla-ansible check                -i inventory/wrx
+kolla-ansible post-deploy          -i inventory/lab
+kolla-ansible check                -i inventory/lab
 ```
 
 ---
@@ -310,7 +310,7 @@ kolla-ansible check                -i inventory/wrx
 ![bg right:30% 90%](assets/pics/openstack/openstack-deploy-superuser.png)
 ```bash
 # Create first basic test resources                                         📋
-KOLLA_CONFIG_PATH=~/openstack/custom-config/wrx/    \
+KOLLA_CONFIG_PATH=~/openstack/custom-config/lab/    \
 ENABLE_EXT_NET=1                                    \
 EXT_NET_CIDR=10.30.0.0/24                           \
 EXT_NET_GATEWAY=10.30.0.1                           \
@@ -337,8 +337,8 @@ table, thead, tbody, tr, th, td {
 
 
 Check the following files to use with CLI:
-- custom-config/wrx/admin-openrc.sh
-- custom-config/wrx/clouds.yaml
+- custom-config/lab/admin-openrc.sh
+- custom-config/lab/clouds.yaml
 
 ---
 # Operations
@@ -377,10 +377,10 @@ umount /var/lib/docker;  wipefs /dev/sdb -a; mkfs.ext4 /dev/sdb
 reboot
 
 # 🚚 Redeploy OpenStack services on network03 from the deployment node
-kolla-ansible bootstrap-servers -i inventory/wrx --limit ~network03
-kolla-ansible prechecks         -i inventory/wrx --limit ~network03
-kolla-ansible pull              -i inventory/wrx --limit ~network03
-kolla-ansible reconfigure       -i inventory/wrx --limit ~network03
+kolla-ansible bootstrap-servers -i inventory/lab --limit ~network03
+kolla-ansible prechecks         -i inventory/lab --limit ~network03
+kolla-ansible pull              -i inventory/lab --limit ~network03
+kolla-ansible reconfigure       -i inventory/lab --limit ~network03
 ```
 ---
 # Replace a Controller Node
@@ -401,15 +401,15 @@ umount /var/lib/docker;  wipefs /dev/sdb -a; mkfs.ext4 /dev/sdb
 reboot
 
 # 🚚 Redeploy OpenStack services on controller03 from the deployment node
-kolla-ansible bootstrap-servers -i inventory/wrx --limit ~controller03
-kolla-ansible prechecks         -i inventory/wrx --limit ~controller03
-kolla-ansible pull              -i inventory/wrx --limit ~controller03
+kolla-ansible bootstrap-servers -i inventory/lab --limit ~controller03
+kolla-ansible prechecks         -i inventory/lab --limit ~controller03
+kolla-ansible pull              -i inventory/lab --limit ~controller03
 
 # ☕ this will take a while
-kolla-ansible reconfigure       -i inventory/wrx --limit ~controller03 --skip-tags keystone
+kolla-ansible reconfigure       -i inventory/lab --limit ~controller03 --skip-tags keystone
 
 # ⚠️ we have to reconfigure keystone across all controller nodes ⚠️
-kolla-ansible reconfigure       -i inventory/wrx                       --tags      keystone
+kolla-ansible reconfigure       -i inventory/lab                       --tags      keystone
 ```
 
 ---
@@ -444,10 +444,10 @@ umount  /var/lib/docker;  wipefs /dev/sdb -a; mkfs.ext4 /dev/sdb
 reboot
 
 # 🚚 Redeploy OpenStack services on compute03 from the deployment node
-kolla-ansible bootstrap-servers -i inventory/wrx --limit ~<COMPUTE_NAME>
-kolla-ansible prechecks         -i inventory/wrx --limit ~<COMPUTE_NAME>
-kolla-ansible pull              -i inventory/wrx --limit ~<COMPUTE_NAME>
-kolla-ansible reconfigure       -i inventory/wrx --limit ~<COMPUTE_NAME>
+kolla-ansible bootstrap-servers -i inventory/lab --limit ~<COMPUTE_NAME>
+kolla-ansible prechecks         -i inventory/lab --limit ~<COMPUTE_NAME>
+kolla-ansible pull              -i inventory/lab --limit ~<COMPUTE_NAME>
+kolla-ansible reconfigure       -i inventory/lab --limit ~<COMPUTE_NAME>
 ```
 
 ---
@@ -484,15 +484,15 @@ openstack server list    --all  --long
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # 📝 Modify inventory, put the new compute host into the hypervisor section 📋
-vim inventory/wrx/20_openstack
+vim inventory/lab/20_openstack
 
 # 🩺 Check the new host
 
 # 🚚 Deploy OpenStack services on the new compute host
-kolla-ansible bootstrap-servers -i inventory/wrx --limit ~compute12
-kolla-ansible prechecks         -i inventory/wrx --limit ~compute12
-kolla-ansible pull              -i inventory/wrx --limit ~compute12
-kolla-ansible deploy            -i inventory/wrx --limit ~compute12
+kolla-ansible bootstrap-servers -i inventory/lab --limit ~compute12
+kolla-ansible prechecks         -i inventory/lab --limit ~compute12
+kolla-ansible pull              -i inventory/lab --limit ~compute12
+kolla-ansible deploy            -i inventory/lab --limit ~compute12
 
 # 🩺 Check the new host
 openstack compute service list
@@ -587,17 +587,17 @@ diff -y --suppress-common-lines  inventory/multinode  inventory/multinode.old
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Update passwords                                                          📋
-mv custom-config/wrx/passwords.yml custom-config/wrx/passwords.yml.old
+mv custom-config/lab/passwords.yml custom-config/lab/passwords.yml.old
 cp $VIRTUAL_ENV/share/kolla-ansible/etc_examples/kolla/passwords.yml \
-    custom-config/wrx/passwords.yml
-kolla-genpwd -p custom-config/wrx/passwords.yml
+    custom-config/lab/passwords.yml
+kolla-genpwd -p custom-config/lab/passwords.yml
 kolla-mergepwd \
-  --old   custom-config/wrx/passwords.yml.old \
-  --new   custom-config/wrx/passwords.yml     \
-  --final custom-config/wrx/passwords.yml
+  --old   custom-config/lab/passwords.yml.old \
+  --new   custom-config/lab/passwords.yml     \
+  --final custom-config/lab/passwords.yml
 
 # Review the differences
-diff -y --suppress-common-lines  custom-config/wrx/passwords.yml custom-config/wrx/passwords.yml.old
+diff -y --suppress-common-lines  custom-config/lab/passwords.yml custom-config/lab/passwords.yml.old
 ```
 
 ---
@@ -610,18 +610,18 @@ ansible  all -b -m ansible.builtin.shell -a \
   "mkdir -p ~/backup; cp  -r /etc/kolla ~/backup/$(date +%y%m%d%H%M%S)_kolla" 
 
 # 🗂️ Force to collect facts
-kolla-ansible gather-facts -i inventory/wrx -e "ansible_python_interpreter=/usr/bin/python3"
+kolla-ansible gather-facts -i inventory/lab -e "ansible_python_interpreter=/usr/bin/python3"
 
 # ansible all -m ansible.builtin.setup
 
 # 🩺 Check
-kolla-ansible prechecks    -i inventory/wrx
+kolla-ansible prechecks    -i inventory/lab
 
 # 📥 Pull images
-kolla-ansible pull         -i inventory/wrx
+kolla-ansible pull         -i inventory/lab
 
 # 🚚 Upgrade
-kolla-ansible upgrade      -i inventory/wrx
+kolla-ansible upgrade      -i inventory/lab
 ```
 ---
 # High Availability
@@ -671,7 +671,7 @@ grep -r [RESOURCE_ID] /var/log/kolla/[SERVICE]
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Create a new backup                                                       📋
-kolla-ansible mariadb-backup -i inventory/wrx
+kolla-ansible mariadb-backup -i inventory/lab
 
 # Check on the controller
 ls -lh /var/lib/docker/volumes/mariadb_backup/_data/
@@ -680,7 +680,7 @@ ls -lh /var/lib/docker/volumes/mariadb_backup/_data/
 gunzip -c <BACKUP_FILE> | docker exec -i mariadb mysql -u root -p
 
 # If the DB cluster cannot create a quorum
-kolla-ansible mariadb-recovery -i inventory/wrx
+kolla-ansible mariadb-recovery -i inventory/lab
 ```
 ---
 # Monitoring
@@ -706,15 +706,15 @@ table, thead, tbody, tr, th, td {
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # 🔌 Enable central logging                                                 📋
-cat custom-config/wrx/globals.d/logging.yml
+cat custom-config/lab/globals.d/logging.yml
 sed -e 's/enable_central_logging:.*/enable_central_logging: "yes"/' \
-    -i custom-config/wrx/globals.d/logging.yml
-cat custom-config/wrx/globals.d/logging.yml
+    -i custom-config/lab/globals.d/logging.yml
+cat custom-config/lab/globals.d/logging.yml
 
 # 🚚 Deploy the new service
-kolla-ansible pull          -i inventory/wrx --tags opensearch
-kolla-ansible deploy        -i inventory/wrx --tags opensearch
-kolla-ansible reconfigure   -i inventory/wrx --tags common
+kolla-ansible pull          -i inventory/lab --tags opensearch
+kolla-ansible deploy        -i inventory/lab --tags opensearch
+kolla-ansible reconfigure   -i inventory/lab --tags common
 ```
 
 Visit: 
@@ -819,17 +819,17 @@ openstack quota show $PRJ_NAME
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Prepare an openrc file to be used with the OpenStack CLI                  📋
-cp  custom-config/wrx/admin-openrc.sh  custom-config/wrx/workshop-openrc.sh
+cp  custom-config/lab/admin-openrc.sh  custom-config/lab/workshop-openrc.sh
 
-sed  -e "s/OS_PROJECT_NAME=.*/OS_PROJECT_NAME=$PRJ_NAME/" -i custom-config/wrx/workshop-openrc.sh
-sed  -e "s/OS_TENANT_NAME=.*/OS_TENANT_NAME=$PRJ_NAME/"   -i custom-config/wrx/workshop-openrc.sh
-sed  -e "s/OS_PASSWORD=.*/OS_PASSWORD=$USR_PASS/"         -i custom-config/wrx/workshop-openrc.sh
-sed  -e "s/OS_USERNAME=.*/OS_USERNAME=$USR_NAME/"         -i custom-config/wrx/workshop-openrc.sh
+sed  -e "s/OS_PROJECT_NAME=.*/OS_PROJECT_NAME=$PRJ_NAME/" -i custom-config/lab/workshop-openrc.sh
+sed  -e "s/OS_TENANT_NAME=.*/OS_TENANT_NAME=$PRJ_NAME/"   -i custom-config/lab/workshop-openrc.sh
+sed  -e "s/OS_PASSWORD=.*/OS_PASSWORD=$USR_PASS/"         -i custom-config/lab/workshop-openrc.sh
+sed  -e "s/OS_USERNAME=.*/OS_USERNAME=$USR_NAME/"         -i custom-config/lab/workshop-openrc.sh
 
 # Review
-cat    custom-config/wrx/workshop-openrc.sh
+cat    custom-config/lab/workshop-openrc.sh
 # Activate
-source custom-config/wrx/workshop-openrc.sh
+source custom-config/lab/workshop-openrc.sh
 
 openstack network list
 openstack router  list
@@ -883,7 +883,7 @@ openstack subnet create  ${EXT_NET_NAME}-subnet \
 # as workshop user in workshop project
 
 # Activate
-source custom-config/wrx/workshop-openrc.sh
+source custom-config/lab/workshop-openrc.sh
 
 PRJ_NAME=workshop
 openstack network create workshop-net

@@ -1,3 +1,5 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 # TODO
 # https://osism.tech/docs/release-notes/osism-7
@@ -9,9 +11,9 @@ repositories:
     version: v0.20250407.0
     sources:
       - src: "prometheus"
-        dstDir: custom-config/wrx/config/prometheus
+        dstDir: custom-config/lab/config/prometheus
       - src: "grafana"
-        dstDir: custom-config/wrx/config/grafana
+        dstDir: custom-config/lab/config/grafana
     commands:
       # Patch openstack dahsboard
       - cmd: /usr/bin/sed
@@ -19,41 +21,41 @@ repositories:
          - -e
          - "s/[$]{DS_PROMETHEUS}/Prometheus/"
          - -i
-         - custom-config/wrx/config/grafana/dashboards/openstack/openstack.json
+         - custom-config/lab/config/grafana/dashboards/openstack/openstack.json
       # haproxy dashboard does not work with native haproxy exporter, we need another one
       # haproxy rules are obsolete due to change from external to embedded exporter
       - cmd: /usr/bin/rm
         args:
-         - custom-config/wrx/config/grafana/dashboards/infrastructure/haproxy.json
-         - custom-config/wrx/config/prometheus/haproxy.rules
+         - custom-config/lab/config/grafana/dashboards/infrastructure/haproxy.json
+         - custom-config/lab/config/prometheus/haproxy.rules
       # Remove preconfigured receivers
       - cmd: /usr/bin/sed
         args:
          - '/^receivers:/,$d'
          - -i
-         - custom-config/wrx/config/prometheus/prometheus-alertmanager.yml
+         - custom-config/lab/config/prometheus/prometheus-alertmanager.yml
       # Patch alermanager config to enable telegram notifications
       # https://velenux.wordpress.com/2022/09/12/how-to-configure-prometheus-alertmanager-to-send-alerts-to-telegram/$
       # - cmd: /usr/bin/sed
       #   args:
-      #    - "$ a\\  routes:\\n  - receiver: 'telegram'\\n    group_wait: 10s\\n    matchers:\\n    - env = 'wrx'"
+      #    - "$ a\\  routes:\\n  - receiver: 'telegram'\\n    group_wait: 10s\\n    matchers:\\n    - env = 'lab'"
       #    - -i
-      #    - custom-config/wrx/config/prometheus/prometheus-alertmanager.yml
+      #    - custom-config/lab/config/prometheus/prometheus-alertmanager.yml
       # Add default receiver
       - cmd: /usr/bin/sed
         args:
          - "$ a receivers:\\n  - name: default-receiver\\n"
          - -i
-         - custom-config/wrx/config/prometheus/prometheus-alertmanager.yml
+         - custom-config/lab/config/prometheus/prometheus-alertmanager.yml
       # remove conf files, we can not utilize
       - cmd: /usr/bin/rm
         args:
-          - custom-config/wrx/config/prometheus/prometheus.yml.d/51-ceph-nodeexporter.yml
-          - custom-config/wrx/config/prometheus/prometheus.yml.d/50-ceph.yml
-          - custom-config/wrx/config/prometheus/prometheus.yml.d/60-fluentd-aggregator.yml
+          - custom-config/lab/config/prometheus/prometheus.yml.d/51-ceph-nodeexporter.yml
+          - custom-config/lab/config/prometheus/prometheus.yml.d/50-ceph.yml
+          - custom-config/lab/config/prometheus/prometheus.yml.d/60-fluentd-aggregator.yml
       - cmd: /usr/bin/find
         args:
-          - custom-config/wrx/config/grafana/dashboards/ceph/
+          - custom-config/lab/config/grafana/dashboards/ceph/
           - -not
           - '('
           - -regex
@@ -69,7 +71,7 @@ repositories:
         args:
           - -c
           - |
-            cat > custom-config/wrx/config/prometheus/prometheus.yml.d/70-blackbox-exporter-customer-router-liveness-icmp.yml <<EOF
+            cat > custom-config/lab/config/prometheus/prometheus.yml.d/70-blackbox-exporter-customer-router-liveness-icmp.yml <<EOF
             scrape_configs:
             - job_name: 'customer_router_liveness_icmp'
               metrics_path: /probe
@@ -96,7 +98,7 @@ repositories:
         args:
           - -c
           - |
-            cat > custom-config/wrx/config/prometheus/prometheus.yml.d/10-redfish.yml <<EOF
+            cat > custom-config/lab/config/prometheus/prometheus.yml.d/10-redfish.yml <<EOF
             EOF
       #       {% if groups.get('redfish') %}
       #       scrape_configs:
@@ -128,20 +130,20 @@ repositories:
     sources:
       - src:    dummy
         dstDir: dummy
-        #dstDir: custom-config/wrx/config/grafana/dashboards/openstack/
+        #dstDir: custom-config/lab/config/grafana/dashboards/openstack/
     commands:
       - cmd: curl
         args:
           - -sS
           - -o
-          - custom-config/wrx/config/grafana/dashboards/infrastructure/1_node_exporter.json
+          - custom-config/lab/config/grafana/dashboards/infrastructure/1_node_exporter.json
           - https://grafana.com/api/dashboards/11074/revisions/9/download
       - cmd: /usr/bin/sed
         args:
          - -e
          - "s/[$]{DS__VICTORIAMETRICS}/Prometheus/"
          - -i
-         - custom-config/wrx/config/grafana/dashboards/infrastructure/1_node_exporter.json
+         - custom-config/lab/config/grafana/dashboards/infrastructure/1_node_exporter.json
   #
   # Blackbox Exporter ICMP
   #
@@ -149,26 +151,26 @@ repositories:
     version: 3143973f88155578760a84d25a16639c8edda067
     sources:
       - src:    dashboards/blackbox_exporter_icmp.json
-        dstDir: custom-config/wrx/config/grafana/dashboards/openstack/
+        dstDir: custom-config/lab/config/grafana/dashboards/openstack/
     commands:
       - cmd: /usr/bin/sed
         args:
          - -e
          - "s/[$]{DS_PROMETHEUS}/Prometheus/"
          - -i
-         - custom-config/wrx/config/grafana/dashboards/openstack/blackbox_exporter_icmp.json
+         - custom-config/lab/config/grafana/dashboards/openstack/blackbox_exporter_icmp.json
       - cmd: /usr/bin/sed
         args:
          - -re
          - 's/(\{\{instance\}\})/{{name}}(\1)/'
          - -i
-         - custom-config/wrx/config/grafana/dashboards/openstack/blackbox_exporter_icmp.json
+         - custom-config/lab/config/grafana/dashboards/openstack/blackbox_exporter_icmp.json
       - cmd: /usr/bin/sed
         args:
           - -re
           - 's/(sum[(]probe_icmp_duration_seconds.*instance)[)]/\1,name)/'
           - -i
-          - custom-config/wrx/config/grafana/dashboards/openstack/blackbox_exporter_icmp.json
+          - custom-config/lab/config/grafana/dashboards/openstack/blackbox_exporter_icmp.json
   #
   # Haproxy
   #
@@ -177,17 +179,17 @@ repositories:
     version: fb8ab3ec1444622f76ffc64162e193623e082062
     sources:
       - src:    prometheus/haproxy.json
-        dstDir: custom-config/wrx/config/grafana/dashboards/infrastructure/
+        dstDir: custom-config/lab/config/grafana/dashboards/infrastructure/
     commands:
       - cmd: /usr/bin/sed
         args:
          - -e
          - "s/[$]{DS_PROMETHEUS}/Prometheus/"
          - -i
-         - custom-config/wrx/config/grafana/dashboards/infrastructure/haproxy.json
+         - custom-config/lab/config/grafana/dashboards/infrastructure/haproxy.json
   # Rules
   - git: https://github.com/samber/awesome-prometheus-alerts.git
     version: 2025-04-17.1
     sources:
       - src:    dist/rules/haproxy/embedded-exporter-v2.yml
-        dstFile: custom-config/wrx/config/prometheus/haproxy.rules
+        dstFile: custom-config/lab/config/prometheus/haproxy.rules

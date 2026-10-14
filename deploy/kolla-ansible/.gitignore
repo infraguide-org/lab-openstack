@@ -1,17 +1,19 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 inventory/multinode
-custom-config/wrx/*openrc.sh
-custom-config/wrx/config/ironic/ironic-agent.kernel
-custom-config/wrx/config/ironic/ironic-agent.initramfs
+custom-config/lab/*openrc.sh
+custom-config/lab/config/ironic/ironic-agent.kernel
+custom-config/lab/config/ironic/ironic-agent.initramfs
 # checked out by gilt
-custom-config/wrx/config/grafana/
-custom-config/wrx/config/prometheus/
-# custom-config/wrx/globals.d/monitoring.yml
-custom-config/wrx/config/octavia/*.pem
-custom-config/wrx/octavia-certificates/
-custom-config/wrx/passwords.yml
-custom-config/wrx/*-openrc.sh
-custom-config/wrx/*-openrc-system.sh
-custom-config/wrx/clouds.yaml
+custom-config/lab/config/grafana/
+custom-config/lab/config/prometheus/
+# custom-config/lab/globals.d/monitoring.yml
+custom-config/lab/config/octavia/*.pem
+custom-config/lab/octavia-certificates/
+custom-config/lab/passwords.yml
+custom-config/lab/*-openrc.sh
+custom-config/lab/*-openrc-system.sh
+custom-config/lab/clouds.yaml
 *.img
 *.qcow2
 *.raw

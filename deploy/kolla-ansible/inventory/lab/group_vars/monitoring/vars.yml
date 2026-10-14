@@ -1,8 +1,10 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 ---
 prometheus_ceph_mgr_exporter_endpoints: "{{ceph_rgw_hosts | map(attribute='ip') | product([':9283']) | map('join')}}"
 
 prometheus_external_labels:
-  env:      wrx
+  env:      lab
   owner:    sckt
   location: fra
   source:   openstack

@@ -734,8 +734,7 @@ Visit:
 # Images
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
-# Prepare images                                                            📋
-mkdir -p  ~/cloud-images/
+# Image sources                                                             📋
 
 ALMA_VERSION="10.2"
 ALMA_IMG_NAME=$(
@@ -764,6 +763,8 @@ DEBIAN_LINK="https://cloud.debian.org/images/cloud/trixie/latest/$DEBIAN_IMG_NAM
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Download images                                                           📋
+mkdir -p  ~/cloud-images/
+
 for i in  alma~$ALMA_VERSION~$ALMA_LINK       \
           rocky~$ROCKY_VERSION~$ROCKY_LINK    \
           ubuntu~$UBUNTU_VERSION~$UBUNTU_LINK \
@@ -968,6 +969,7 @@ netplan apply
 # Copy the ssh key from deployment to testing node                          📋
 scp ~/.ssh/id_ecdsa* testing.mgmt.lab.nfgd.net:~/.ssh/
 
+# within workshop project
 # Assign floating IPs to VMs
 openstack floating ip  create shared3010
 FIP_VM0=$(

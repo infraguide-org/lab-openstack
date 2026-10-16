@@ -3,9 +3,9 @@
 # Result of the automatic OpenStack lab build.
 # Updated periodically by the build job; infraguide.org fetches this file from main at its build time.
 # checks[].text is shown as is on the lab page; status is passed, failed or any other value for pending.
-date: 2026-10-05
+date: 2026-10-16
 node: node61
-duration: 5288 sec
+duration: 8356 sec
 checks:
   - name: nodes_created
     text: Nodes created

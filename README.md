@@ -20,7 +20,7 @@ The hypervisor, the networks and the virtual machines of the environment are cre
 | `deploy/cephadm/` | cephadm configuration of the Ceph cluster |
 | `modules/` | additional modules: `automation` (Ansible, Terraform, testinfra) and `testing` (Tempest) |
 | `scripts/` | helper scripts for the nodes (`helpers`, `infra`) |
-| `slides/` | slide sources (`src`) and the script that builds the index page and `index.json` (`scripts`) |
+| `slides/` | slide sources (`src`) and the scripts that build the decks (`build.sh`) and the index page with `index.json` (`make-index.sh`) in `scripts` |
 | `status/` | `build.yml` - result of the automatic lab build, shown on the lab page |
 
 ## Environment
@@ -79,15 +79,20 @@ checks:
 The colors are derived from `status`, the file has no `color` field.
 
 ## How to create slides
-The sources are Markdown files in `slides/src`, rendered with [Marp](https://marp.app/):
+The sources are Markdown files in `slides/src`, rendered with [Marp](https://marp.app/).
+Build them with `slides/scripts/build.sh`, which runs Marp and copies `slides/src/assets`
+next to the output - the generated HTML loads the pictures from there:
 
 ```bash
-cd slides/src
-marp          # html
-marp --pdf    # pdf
-marp --pptx   # pptx
+slides/scripts/build.sh                            # html, the default
+slides/scripts/build.sh slides/src html pdf pptx   # all formats, as the workflow builds them
 ```
 
-The output goes to `slides/dist`. Every push to `main` that changes `slides/src`, `slides/scripts`, `conf/env.yaml`
-or `status/` builds the slides and the index page and publishes them with the workflow `.github/workflows/slides.yml`.
+The output goes to `slides/dist`. PDF and PPTX take noticeably longer than HTML, so they
+are built only when asked for. The script calls `marp` from `$PATH` and falls back to
+`npx @marp-team/marp-cli@4`; set `MARP` to pick another command.
+
+Every push to `main` that changes `slides/src`, `slides/scripts`, `conf/env.yaml`, `status/`
+or the workflow itself builds the slides and the index page and publishes them with
+`.github/workflows/slides.yml`, which can also be started manually.
 The order of the decks is set by the `order` field in the front matter of each deck.

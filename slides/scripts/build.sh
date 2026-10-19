@@ -29,4 +29,6 @@ done
 
 # The html keeps the image paths relative to itself, so assets/ has to sit in $out too.
 mkdir -p "$out"
-cp -r assets "$out/"
+if [ -d assets ]; then
+  cp -r assets "$out/"
+fi

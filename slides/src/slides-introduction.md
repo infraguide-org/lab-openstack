@@ -36,7 +36,12 @@ import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.mi
 mermaid.initialize({ startOnLoad: true, theme: 'default' });
 </script>
 
+# OpenStack with Ceph
+## Administration, Operations and Scaling
+![bg right:30% 50%](./assets/pics/openstack/icon-openstack.svg)
+![bg right:30% 50%](assets/pics/common/icon-ceph.svg)
 
+---
 # Learning objectives
 
 - Deploy Ceph and integrate it with OpenStack
@@ -130,6 +135,7 @@ Designed for virtual machines and services in a private or hybrid cloud.
 
 ---
 # OpenStack Core Components
+![bg right:30% 50%](./assets/pics/openstack/icon-openstack.svg)
 - Keystone
 - Nova
 - Neutron
@@ -138,7 +144,7 @@ Designed for virtual machines and services in a private or hybrid cloud.
 
 ---
 # Ceph Core Components
-
+![bg right:30% 50%](assets/pics/common/icon-ceph.svg)
 - **MON** - Monitor
 - **OSD** - Object Storage Daemon
 - **MGR** - Manager

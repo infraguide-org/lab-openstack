@@ -20,6 +20,9 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
+    -h|--help)
+      exec $KOLLA_CMD --help
+      ;;
     *)
       shift # past argument
       ;;

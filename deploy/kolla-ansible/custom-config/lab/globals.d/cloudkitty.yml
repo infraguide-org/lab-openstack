@@ -1,0 +1,5 @@
+---
+enable_cloudkitty:            "no"
+cloudkitty_collector_backend: "prometheus"
+cloudkitty_storage_backend:   "influxdb" # "opensearch"
+enable_influxdb:              "{{enable_cloudkitty}}"

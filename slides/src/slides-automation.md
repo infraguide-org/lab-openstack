@@ -29,6 +29,7 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 </script>
 
 # Automation
+![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 
 ---
 # Ansible
@@ -40,9 +41,9 @@ python3 -m venv ~/venv/ansible
 source  ~/venv/ansible/bin/activate
 
 # Clone lab-openstack git repository
-git clone -c http.proxy="http://proxy.lab.nfgd.net:3128"  \
-          -c https.proxy="http://proxy.lab.nfgd.net:3128" \
-          https://github.com/infraguide-org/lab-openstack.git
+http_proxy=http://proxy.lab.nfgd.net:3128  \
+https_proxy=http://proxy.lab.nfgd.net:3128 \
+git clone https://github.com/infraguide-org/lab-openstack.git
 
 # Install dependencies for Ansible
 cd  lab-openstack/modules/automation/ansible
@@ -97,13 +98,15 @@ clouds:
     interface: "internal"
     identity_api_version: 3
 EOF
-
 ```
 
 ---
 # Run
 ![bg right:50% 30%](assets/pics/openstack-automation/icon-ansible.svg)
 ```bash
+# Copy admin-openrc.sh file from deployment to testing node                 📋
+scp ~/openstack/custom-config/lab/admin-openrc.sh testing.mgmt:~/
+
 # Create automation project
 source ~/admin-openrc.sh 
 ansible-playbook playbooks/create-project.yml

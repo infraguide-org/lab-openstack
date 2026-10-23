@@ -29,8 +29,11 @@ import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.mi
 mermaid.initialize({ startOnLoad: true, theme: 'default' });
 </script>
 # Testing
+![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
+
 --- 
 # Why?
+![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 - Changes
 - Regression
 - Impact of outside events (Network, Storage)
@@ -39,6 +42,7 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 - Recognition of potential problems (in advance)
 ---
 # Challenges
+![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 - My specific configuration
 - My specific implementation / deployment / infra
 - Networking
@@ -82,16 +86,27 @@ cat etc/tempest.conf
 stestr list > tests-available.list
 # Create a list of smoke tests
 cat tests-available.list | grep smoke > smoke-tests.list
+
+
 # How to run
 tempest run --load-list smoke-tests.list  --regex \
   tempest.api.network.test_security_groups.SecGroupTest.test_list_security_groups
+
+
+# Run full list
+tempest run --load-list smoke-tests.list | tee -a $(date "+%Y%m%d%H%M%S")_smoke-tests.log
 ```
 ---
 # Scripts
+![bg right:40% 40%](assets/pics/openstack/icon-openstack.svg)
 [openstack-health-monitor](https://github.com/SovereignCloudStack/openstack-health-monitor)
 ```bash
-mkdir testing
+# On testing node clone the repo with test script                           📋
+cd ~
+http_proxy=http://proxy.lab.nfgd.net:3128  \
+https_proxy=http://proxy.lab.nfgd.net:3128 \
 git clone https://github.com/SovereignCloudStack/openstack-health-monitor.git
+cd openstack-health-monitor/
 export IMG=ubuntu-24.04
 export JHIMG=$IMG
 export FLAVOR=m1.small

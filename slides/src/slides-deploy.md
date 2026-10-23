@@ -169,33 +169,33 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 
 ---
 # Infrastructure
-<div class="mermaid">
-graph LR
-    internet[Internet <img src="assets/pics/common/icon-cloud.svg" width="60"/>]
-    subgraph Infrastructure
-        direction TB
-        registry("Registry\n(Harbor)")
-        dns("DNS\n(dnsmasq)")
-        proxy("Proxy\n(squid)")
-        recorder("Recorder\n(ansible/ara)")
-    end
-    subgraph Environment
-        direction TB
-        os(OpenStack)
-        deploy("Deployment")
-    end
-    %% Connections
-    dns --> internet
-    registry --> internet
-    proxy --> internet
-    os --> registry
-    os --> dns
-    deploy --> proxy
-    deploy --> dns
-    deploy --> recorder
-    %%Environment --> Infrastructure
-    %%registry --> os
-</div>
+```plantuml alt="Infrastructure overview" renderer_hint="![bg right:40% 90%]"
+skinparam backgroundColor transparent
+!include <edgy/edgy>
+
+cloud "Internet" as internet
+
+$architectureFacet("Infrastructure", infrastructure) {
+  $object("Registry\n(Harbor)", registry)
+  $object("DNS\n(dnsmasq)", dns)
+  $object("Proxy\n(squid)", proxy)
+  $object("Recorder\n(ansible/ara)", recorder)
+}
+
+$productFacet("Environment", environment) {
+  $organisationFacet("OpenStack", os)
+  $object("Deployment", deploy)
+}
+
+$flowUp(dns, internet)
+$flowUp(registry, internet)
+$flowUp(proxy, internet)
+$flowUp(os, registry)
+$flowUp(os, dns)
+$flowUp(deploy, proxy)
+$flowUp(deploy, dns)
+$flowUp(deploy, recorder)
+```
 
 ---
 # Deployment Node
@@ -222,9 +222,6 @@ pip install -r requirements.txt
 
 # Install dependencies for kolla-ansible
 kolla-ansible install-deps
-
-# ⚠️ NOTE: fix for prometheus 05.2026
-# pip install "bcrypt<5.0.0"
 
 # Install additional dependencies
 gilt overlay
@@ -413,16 +410,26 @@ kolla-ansible reconfigure       -i inventory/lab --limit ~controller03 --skip-ta
 # ⚠️ we have to reconfigure keystone across all controller nodes ⚠️
 kolla-ansible reconfigure       -i inventory/lab                       --tags      keystone
 ```
+---
+# Clean OVN DBs after rebuilding a controller node
+![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
+```bash
+# on a healthy controller node                                              📋
+
+# SB DB: get the stale id (of the node before rebuild)
+docker exec ovn_sb_db ovs-appctl -t /var/run/ovn/ovnsb_db.ctl cluster/status OVN_Southbound | awk '/match_index=0 last msg/{print $1}'
+# kick it out
+docker exec ovn_sb_db ovs-appctl -t /var/run/ovn/ovnsb_db.ctl cluster/kick OVN_Southbound <id>
+
+# NB DB: get the stale id
+docker exec ovn_nb_db ovs-appctl -t /var/run/ovn/ovnnb_db.ctl cluster/status OVN_Northbound | awk '/match_index=0 last msg/{print $1}'
+docker exec ovn_nb_db ovs-appctl -t /var/run/ovn/ovnnb_db.ctl cluster/kick OVN_Northbound <id>
+```
 
 ---
 # Replace a Compute Node
-![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
+![bg right:40% 40%](assets/pics/openstack/icon-openstack.svg)
 ```bash
-# 🔍 Review data stored on the node. Is there anything to back up?          📋
-docker volume ls
-du -lhs /var/lib/docker/volumes/*
-docker exec -ti nova_libvirt virsh list  --all
-
 # 🚧 Drain the OpenStack compute host
 openstack server list --all       --host    <COMPUTE_NAME>
 openstack compute service set     --disable <COMPUTE_NAME> nova-compute
@@ -432,6 +439,11 @@ do
   openstack server migrate --live $vm
 done
 openstack server list --all       --host    <COMPUTE_NAME>
+
+# 🔍 Review data stored on the node. Is there anything to back up?          📋
+docker volume ls
+du -lhs /var/lib/docker/volumes/*
+docker exec -ti nova_libvirt virsh list  --all
 
 # 💥 Break the node
 # On the node
@@ -449,7 +461,15 @@ reboot
 kolla-ansible bootstrap-servers -i inventory/lab --limit ~<COMPUTE_NAME>
 kolla-ansible prechecks         -i inventory/lab --limit ~<COMPUTE_NAME>
 kolla-ansible pull              -i inventory/lab --limit ~<COMPUTE_NAME>
-kolla-ansible reconfigure       -i inventory/lab --limit ~<COMPUTE_NAME>
+kolla-ansible reconfigure       -i inventory/lab --limit ~<COMPUTE_NAME> --skip-tags ovn
+kolla-ansible reconfigure       -i inventory/lab --tags  ovn
+
+# 🩺 check the compute host
+docker exec -ti nova_libvirt virsh list  --all
+docker exec ovn_sb_db ovn-sbctl show
+
+# 🔌 Live-migrate a VM onto the compute host
+openstack server  migrate --live --host <COMPUTE_NAME> <SERVER_ID>
 ```
 
 ---
@@ -459,19 +479,21 @@ kolla-ansible reconfigure       -i inventory/lab --limit ~<COMPUTE_NAME>
 # 🩺 Check                                                                  📋
 openstack compute service list
 
-# 🔍 Take a look at logs on compute03
+# 🔍 Take a look at logs on the compute host
 tail -f /var/log/kolla/nova/nova-compute.log
+tail -f /var/log/kolla/neutron/neutron-*.log
+tail -f /var/log/kolla/libvirt/libvirtd.log
 
 # 🔍 Compare files on nova_compute volume and in the backup
 ls -lh ~/volumes/nova_compute/_data/ /var/lib/docker/volumes/nova_compute/_data/
 
-# ⚙️ Repair
+# ⚙️ Repair if needed
 cp ~/volumes/nova_compute/_data/compute_id  /var/lib/docker/volumes/nova_compute/_data/
 
 # 🩺 Check the status again and test
 openstack compute service list
-openstack compute service set --enable compute03 nova-compute
-openstack server migrate --live --host compute03 <SERVER_ID> 
+openstack compute service set --enable <COMPUTE_NAME> nova-compute
+openstack server migrate --live --host <COMPUTE_NAME> <SERVER_ID>
 openstack server list    --all  --long
 ```
 ---
@@ -491,21 +513,66 @@ vim inventory/lab/20_openstack
 # 🩺 Check the new host
 
 # 🚚 Deploy OpenStack services on the new compute host
-kolla-ansible bootstrap-servers -i inventory/lab --limit ~compute12
-kolla-ansible prechecks         -i inventory/lab --limit ~compute12
-kolla-ansible pull              -i inventory/lab --limit ~compute12
-kolla-ansible deploy            -i inventory/lab --limit ~compute12
+kolla-ansible bootstrap-servers -i inventory/lab
+kolla-ansible prechecks         -i inventory/lab --limit ~<COMPUTE_NAME>
+kolla-ansible pull              -i inventory/lab --limit ~<COMPUTE_NAME>
+kolla-ansible deploy            -i inventory/lab --limit ~<COMPUTE_NAME> --skip-tags ovn
+kolla-ansible deploy            -i inventory/lab --tags  ovn
 
-# 🩺 Check the new host
+# 🩺 check the compute host
+docker exec -ti nova_libvirt virsh list  --all
+docker exec ovn_sb_db ovn-sbctl show
+
+# 🔌 Live-migrate a VM onto the compute host
 openstack compute service list
-openstack server  migrate --live --host compute12 <SERVER_ID>
-
-docker exec -ti nova_libvirt virsh list  --all # on the host
+openstack server  migrate --live --host <COMPUTE_NAME> <SERVER_ID>
 ```
 
 ---
 # Remove a Compute Host
-![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
+![bg right:40% 40%](assets/pics/openstack/icon-openstack.svg)
+
+```bash
+# 🚧 disable the compute host                                               📋
+openstack compute service set --disable --disable-reason "decommission" <COMPUTE_NAME> nova-compute
+
+# 🚚 live-mgrate instances from the compute host
+openstack server list --all-projects --host <COMPUTE_NAME> --status ACTIVE -f value -c ID \
+  | xargs --max-procs 3 -I{} sh -c 'echo {}; openstack server migrate --live-migration {};'
+
+# 🚚 migrade stopped instances, cold migration, then confirm each one
+openstack server list --all-projects --host computeNN --status SHUTOFF -f value -c ID \
+  | xargs --max-procs 3 -I{} sh -c 'echo {}; openstack server migrate {};'
+
+# then confirm each
+openstack server resize confirm <id>
+
+# 🩺 verify no servers remains on the compute host
+openstack server list --all --long --host <COMPUTE_NAME>
+
+# ❌ stop services on the compute host
+systemctl stop kolla-*
+
+# ❌ nova service
+openstack compute service list --host <COMPUTE_NAME>
+openstack compute service delete <nova-compute-service-id>
+
+# ❌ placement: allocations must be empty, then delete the provider
+openstack resource provider list --name <COMPUTE_NAME>
+openstack resource provider usage show  <rp-uuid>
+openstack resource provider delete      <rp-uuid>
+
+# ❌ neutron agents: list and delete each
+openstack network agent list --host <COMPUTE_NAME>
+openstack network agent delete <agent-id>
+
+# ❌ on a controller delete OVN chassis
+docker exec ovn_sb_db ovn-sbctl show
+docker exec ovn_sb_db ovn-sbctl chassis-del <COMPUTE_NAME>
+
+# 💥 destroy all openstack services on the compute node
+kolla-ansible destroy -i inventory/lab --limit ~<COMPUTE_NAME> <--yes-i-really-really-mean-it>
+```
 
 ---
 # Reboot an OpenStack Host
@@ -515,12 +582,55 @@ docker exec -ti nova_libvirt virsh list  --all # on the host
 * How to reboot compute nodes?
 
 ---
+# Reboot a Controller
+![bg right:40% 40%](assets/pics/openstack/icon-openstack.svg)
+```bash
+# 🩺 Check MySQL status
+MYSQL_PASS=$(cat /etc/kolla/mariadb/galera.cnf  | grep wsrep_sst_auth | awk -F: '{print $NF}')
+docker exec mariadb mysql -uroot -p$MYSQL_PASS -e "SHOW STATUS LIKE 'wsrep_%'"
+docker exec mariadb mysql -uroot -p$MYSQL_PASS -e "SHOW PROCESSLIST"
+
+# 🩺 Check teh rabbitmq status
+docker exec rabbitmq rabbitmqctl cluster_status
+
+# 🩺 Check the  OVN status
+docker exec ovn_nb_db ovs-appctl -t /var/run/ovn/ovnnb_db.ctl cluster/status OVN_Northbound
+docker exec ovn_sb_db ovs-appctl -t /var/run/ovn/ovnsb_db.ctl cluster/status OVN_Southbound
+
+
+# 🚧 Prepare for reboot
+docker    exec rabbitmq rabbitmq-upgrade drain
+
+systemctl stop kolla-rabbitmq-container.service
+systemctl stop kolla-mariadb-container.service
+
+# 🔁 Now the host can be rebootet
+reboot
+
+# After reboot
+docker exec rabbitmq rabbitmq-queues rebalance quorum
+
+# 🩺 Check the rabbitmq status
+docker exec rabbitmq rabbitmqctl cluster_status
+
+# 🩺 Check the mysql status
+
+MYSQL_PASS=$(cat /etc/kolla/mariadb/galera.cnf  | grep wsrep_sst_auth | awk -F: '{print $NF}')
+docker exec mariadb mysql -uroot -p$MYSQL_PASS -e "SHOW STATUS LIKE 'wsrep_%'"
+docker exec mariadb mysql -uroot -p$MYSQL_PASS -e "SHOW PROCESSLIST"
+
+# 🩺 Check the  OVN status
+docker exec ovn_nb_db ovs-appctl -t /var/run/ovn/ovnnb_db.ctl cluster/status OVN_Northbound
+docker exec ovn_sb_db ovs-appctl -t /var/run/ovn/ovnsb_db.ctl cluster/status OVN_Southbound
+```
+
+
+---
 # Debugging RabbitMQ
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 
 ```bash
 # Some commands to debug RabbitMQ errors                                    📋
-
 rabbitmqctl status
 rabbitmqctl cluster_status
 
@@ -528,11 +638,14 @@ rabbitmq-plugins list
 rabbitmq-plugins disable <PLUGIN>
 rabbitmq-plugins enable  <PLUGIN>
 
-rabbitmqctl list_queues name,messages,messages_ready,messages_unacknowledged
+rabbitmqctl list_queues name,messages,messages_ready,messages_unacknowledged,leader
 rabbitmqctl list_bindings 
 
 rabbitmqctl purge_queue   <QUEUE_NAME>
 rabbitmqctl delete_queue  <QUEUE_NAME>
+
+# Repair rabbitmq with kolla-ansible
+kolla-ansible rabbitmq-reset-state -i inventory/lab/
 ```
 
 ---
@@ -559,14 +672,19 @@ pip install -U pip
 pip install -r requirements.txt
 pip install -U "kolla-ansible<$((CUR_KA_VER + 2)).0"
 kolla-ansible install-deps
-# ⚠️ NOTE: fix for prometheus 05.2026
-# pip install "bcrypt<5.0.0"
 
+# switch the active virtual env
+rm -rf ~/venv/openstack
+ln -s $VIRTUAL_ENV ~/venv/openstack
+
+# relogin and check $VIRTUAL_ENV
+echo $VIRTUAL_ENV
+which kolla-ansible
 ```
 
 ---
 # Roll out the Next Release
-## Inventory
+## **Inventory**
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Update inventory                                                          📋
@@ -585,7 +703,7 @@ diff -y --suppress-common-lines  inventory/multinode  inventory/multinode.old
 
 ---
 # Roll out the Next Release
-## Passwords
+## **Passwords**
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Update passwords                                                          📋
@@ -604,17 +722,19 @@ diff -y --suppress-common-lines  custom-config/lab/passwords.yml custom-config/l
 
 ---
 # Roll out the Next Release
-## Go
+## **Go**
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
-# 💾 Create config backups                                                  📋
+# 💾 Create all backups you can                                             📋
+# config
 ansible  all -b -m ansible.builtin.shell -a \
   "mkdir -p ~/backup; cp  -r /etc/kolla ~/backup/$(date +%y%m%d%H%M%S)_kolla" 
 
-# 🗂️ Force to collect facts
-kolla-ansible gather-facts -i inventory/lab -e "ansible_python_interpreter=/usr/bin/python3"
+# mysql: see Backup and Recovery
 
-# ansible all -m ansible.builtin.setup
+# 🗂️ Force to collect facts
+rm -rf   $VIRTUAL_ENV/ansible-facts/*
+kolla-ansible gather-facts -i inventory/lab
 
 # 🩺 Check
 kolla-ansible prechecks    -i inventory/lab
@@ -700,11 +820,11 @@ table, thead, tbody, tr, th, td {
 | :--- | :--- |
 | Grafana      | [http://int.os.lab.nfgd.net:3000](http://int.os.lab.nfgd.net:3000) |
 | Prometheus   | [http://int.os.lab.nfgd.net:9091](http://int.os.lab.nfgd.net:9091) |
-| Alertmanager | [http://int.os.lab.nfgd.net:9095](http://int.os.lab.nfgd.net:9091) |
+| Alertmanager | [http://int.os.lab.nfgd.net:9093](http://int.os.lab.nfgd.net:9091) |
 
 ---
 # Expand / Deploy a New Service
-# Central Logging
+## **Central Logging**
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # 🔌 Enable central logging                                                 📋
@@ -724,6 +844,47 @@ Visit:
 - visualize, create an index pattern
 - discover
 
+---
+# Expand / Deploy a New Service
+## **Rating Service**
+![bg right:30% 50%](https://raw.githubusercontent.com/openstack/cloudkitty/refs/heads/master/doc/source/images/cloudkitty-logo.png)
+```bash
+# 🔌 Enable CloudKitty                                                      📋
+cat custom-config/lab/globals.d/cloudkitty.yml
+sed -e 's/enable_cloudkitty:.*/enable_cloudkitty: "yes"/' \
+    -i custom-config/lab/globals.d/cloudkitty.yml
+cat custom-config/lab/globals.d/cloudkitty.yml
+
+# 🚚 Deploy the new service
+kolla-ansible pull   -i inventory/lab --tags influxdb,cloudkitty
+kolla-ansible deploy -i inventory/lab --tags loadbalancer,influxdb,cloudkitty,horizon
+
+# 🩺 check
+openstack catalog list
+```
+
+---
+# Rating Service
+![bg right:30% 50%](https://raw.githubusercontent.com/openstack/cloudkitty/refs/heads/master/doc/source/images/cloudkitty-logo.png)
+## **Configuration**
+```bash
+# 🔧 Configure CloudKitty                                                   📋
+pip3 install python-cloudkittyclient
+
+openstack rating module enable hashmap
+openstack rating module set priority hashmap 100
+openstack rating module list
+
+openstack rating hashmap service create openstack_nova_server_status
+openstack rating hashmap service list
+
+openstack rating hashmap mapping create -s <service_id> -t flat 0.02
+
+openstack rating hashmap mapping list -s <service-id>
+openstack rating summary get
+openstack rating dataframes get
+
+```
 
 ---
 # Using OpenStack
@@ -735,18 +896,18 @@ Visit:
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Image sources                                                             📋
-
-ALMA_VERSION="10.2"
 ALMA_IMG_NAME=$(
-  curl -sS https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM  \
-   | grep GenericCloud-$ALMA_VERSION | awk '{print $2}' |  sort  | tail -n1)
+  curl -sS https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM \
+    | grep GenericCloud-10[.] | sort | tail -n1 | awk '{print $NF}')
+ALMA_VERSION=$(echo "$ALMA_IMG_NAME" | cut -d- -f4)
 ALMA_LINK=https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/$ALMA_IMG_NAME
 
-ROCKY_VERSION="10.2"
 ROCKY_IMG_NAME=$(
-  curl -sS https://dl.rockylinux.org/pub/rocky/10/images/x86_64/CHECKSUM \
-  | grep SHA256 | awk '{print $2}'  | grep GenericCloud-LVM-$ROCKY_VERSION \
-  | sed -e "s/[()]//g" | sort | tail -n1)
+  curl -sS https://dl.rockylinux.org/pub/rocky/10/images/x86_64/CHECKSUM   \
+    | grep SHA256 | awk '{print $2}'  | grep GenericCloud-LVM- \
+    | sed -e "s/[()]//g" | sort | tail -n1
+)
+ROCKY_VERSION=$(echo "$ROCKY_IMG_NAME" | cut -d- -f5)
 ROCKY_LINK=https://dl.rockylinux.org/pub/rocky/10/images/x86_64/$ROCKY_IMG_NAME
 
 UBUNTU_VERSION="24.04"
@@ -760,7 +921,7 @@ DEBIAN_LINK="https://cloud.debian.org/images/cloud/trixie/latest/$DEBIAN_IMG_NAM
 
 ---
 # Images
-![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
+![bg right:40% 40%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Download images                                                           📋
 mkdir -p  ~/cloud-images/
@@ -845,6 +1006,7 @@ openstack server  list
   * flat
   * vlan
   * vxlan
+  * geneve
 * Routers
 * Floating IPs
 * Load Balancers
@@ -882,13 +1044,12 @@ openstack subnet create  ${EXT_NET_NAME}-subnet \
 ## **Project Network**
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
-# Create project network (VXLAN backed)                                     📋
+# Create project network                                                    📋
 # as workshop user in workshop project
 
 # Activate
 source custom-config/lab/workshop-openrc.sh
 
-PRJ_NAME=workshop
 openstack network create workshop-net
 
 openstack subnet create workshop-subnet \
@@ -903,7 +1064,7 @@ openstack router set --external-gateway shared3010 workshop-router
 
 ---
 # Networking
-##  **Virtual Machines**
+## **Virtual Machines**
 ![bg right:50% 30%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # as workshop user in workshop project
@@ -997,6 +1158,7 @@ openstack security group rule create allow-simple-access   \
   --remote-ip 0.0.0.0/0 \
   --ingress
 openstack server add security group vm0 allow-simple-access
+openstack server add security group vm1 allow-simple-access
 
 # You should be able to connect to VMs from the testing node
 ping -c 3 <IP>
@@ -1007,33 +1169,45 @@ ssh -i ~/.ssh/id_ecdsa ubuntu@<IP>
 ---
 # Networking
 ## **Debugging**
-![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
+![bg right:40% 40%](assets/pics/openstack/icon-openstack.svg)
+
+[//]: # (# For OVS Deployments:)
+[//]: # (# On network nodes check if there are network namespaces created for the router)
+[//]: # (# qrouter-<ROUTER_ID>)
+[//]: # (# snat-<ROUTER_ID>)
+[//]: # (# fip-<FLOATING_IP_NETWORK_ID>)
+[//]: # (ip netns)
+[//]: # (# Check if IP addresses are assigned)
+[//]: # (ip netns exec <NETWORK_NAMESPACE_ID> ip a)
+[//]: # ()
+[//]: # (# On compute nodes check if there are network namespaces created for the router)
+[//]: # (ip netns)
+
 ```bash
-# Check VMs and IPs assigned to them                                        📋
+# 🩺 Check VMs and IPs assigned to them                                     📋
 openstack server list --long
 
-# Check the state of network services
+# 🩺 Check the state of network services
 openstack network agent list
 
-# Check the router has connectivity to the external network
-# Check the router has IPs from the tenant network assigned
+# 🩺 Check the router has connectivity to the external network
+# 🩺 Check the router has IPs from the tenant network assigned
 openstack router show workshop-router
 
-# On network nodes check if there are network namespaces created for the router
-# qrouter-<ROUTER_ID>
-# snat-<ROUTER_ID>
-# fip-<FLOATING_IP_NETWORK_ID>
-ip netns
-# Check if IP addresses are assigned
-ip netns exec <NETWORK_NAMESPACE_ID> ip a
+# 🩺 Find the gateway port, check the node the port is bound to
+openstack port list --router workshop-router --long  | grep gateway
+openstack port show <PORT_ID>
 
-# On compute nodes check if there are network namespaces created for the router
-ip netns
+# 🩺 on a controller
+docker exec ovn_nb_db ovn-nbctl lr-list
+docker exec ovn_nb_db ovn-nbctl lrp-list <LRP_ID>
+docker exec ovn_sb_db ovn-sbctl show | grep <PORT_ID> -B 10
+docker exec ovn_nb_db ovn-nbctl lrp-get-gateway-chassis lrp-<PORT_ID>
 ```
 
----
-# Network Namespaces
-![bg right:50% 90%](assets/pics/openstack/network-namespaces-funtoo.png)
+[//]: # (---)
+[//]: # (# Network Namespaces)
+[//]: # (![bg right:50% 90%]\(assets/pics/openstack/network-namespaces-funtoo.png\))
 
 ---
 # User Config with Cloud-Init
@@ -1044,7 +1218,7 @@ cat > user-data.yaml <<EOF
 #cloud-config
 runcmd:
   - mkdir -p /var/lib/data/test
-  - echo "<h1>Hello from write_files</h1>" > /var/lib/data/test/hello.html
+  - echo "<h1>Hello from runcmd</h1>" > /var/lib/data/test/hello.html
 fs_setup:
   - device:     /dev/vdb
     filesystem: ext4
@@ -1092,24 +1266,34 @@ vm2_ip=$(openstack floating ip create -f value -c floating_ip_address shared3010
 openstack server add floating ip vm2 $vm2_ip
 ```
 ---
-# User Config - Inspect the Created VM
+# User Config
+## **Inspect the Created VM**
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Log in from testing node                                                  📋
 ssh -i ~/.ssh/id_ecdsa ubuntu@<FLOATING_IP>
 
+# add the  allow-simple-access security group to the server, try again
+openstack server add security group  vm2 allow-simple-access
+
+ssh -i ~/.ssh/id_ecdsa ubuntu@<FLOATING_IP>
+
+# within the vm2
 cat /etc/fstab
 mount | grep vdb
 
 cat /var/lib/data/index.html
 cat /var/lib/data/test/hello.html
+
+cloud-init status
+cloud-init status --long
 ```
 
 ---
 # Debugging
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
-# Inspect the instance                                                      📋
+# 🩺 Inspect the instance                                                   📋
 openstack server show vm2
 
 # Inspect VM with libvirt on the compute host
@@ -1119,7 +1303,7 @@ docker exec -ti nova_libvirt virsh console    <INSTANCE_NAME> # ctrl+5 to exit
 docker exec -ti nova_libvirt virsh domblklist <INSTANCE_NAME>
 docker exec -ti nova_libvirt virsh domiflist  <INSTANCE_NAME>
 
-# Inspect volumes backed by Ceph on the compute host
+# 🩺 Inspect volumes backed by Ceph on the compute host
 docker exec -ti nova_compute ls /etc/ceph/
 docker exec -ti nova_compute ceph -s
 docker exec -ti nova_compute ceph --id cinder -s
@@ -1128,12 +1312,8 @@ docker exec -ti nova_compute rbd  --id cinder ls images
 docker exec -ti nova_compute rbd  --id cinder ls vms
 docker exec -ti nova_compute rbd  --id cinder ls volumes
 
-# Inspect network interface on the compute host
+# 🩺 Inspect network interfaces on the compute host
 docker exec -ti openvswitch_vswitchd ovs-vsctl show
-
-# Within the instance
-cloud-init status
-cloud-init status --long
 ```
 
 ---
@@ -1146,22 +1326,27 @@ openstack volume list
 # Create a new volume and attach it
 openstack volume create  --size 1 vm1-data
 openstack server add volume   vm1 vm1-data
-openstack volume attachment list
+
+openstack volume attachment list --server-id $(
+  openstack server show vm1 -c Id -f value
+)
+
 
 # Inspect it within the VM from the testing node
 lsblk
 
 # Create some data on it
 mkfs.ext4 /dev/vdb
-echo "$(date) Hello from vm1"
+mount /dev/vdb /mnt
+echo "$(date) Hello from vm1" > /mnt/test.txt
 
-# Take a snapshot on the deployment node
+# Take a snapshot on the deployment node, hint: --os-volume-api-version 3.66
 openstack volume snapshot create --volume vm1-data vm1-data-snap1 [--force]
 openstack volume snapshot list
 
 # Change the data
-echo "Let us add a new line into the file after the snapshot was created"  >> /mnt/test
-cat  /mnt/test
+echo "Let us add a new line into the file after the snapshot was created"  >> /mnt/test.txt
+cat  /mnt/test.txt
 ```
 ---
 # Block Devices
@@ -1169,14 +1354,15 @@ cat  /mnt/test
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Restore from the snapshot                                                 📋
-openstack server stop   vm1
+
 openstack server list;  openstack volume list;
 openstack volume snapshot list --volume vm1-data
 
 openstack server remove volume vm1 vm1-data
 openstack volume revert            vm1-data-snap1
 openstack server add    volume vm1 vm1-data
-openstack server start         vm1
+
+# now you can inspect the device within vm1 again
 ```
 
 ---
@@ -1185,9 +1371,9 @@ openstack server start         vm1
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
 # Create a volume from an image                                             📋
-openstack volume create --image cirros --size 1 vm1-cirros
+openstack volume create --image cirros --size 1 vol-from-cirros-image
 
-# Create a volume from a snapshot
+# Create a volume from a snapshot, hint: --os-volume-api-version 3.66
 openstack volume snapshot create --volume vm2-root vm2-root-snap1 [--force]
 openstack volume create --snapshot vm2-root-snap1 ubuntu-24.04-from-vm2
 
@@ -1223,15 +1409,16 @@ is a human-readable label that represents a **physically isolated slice of data 
 # Availability Zones
 ![bg right:50% 30%](assets/pics/openstack/icon-openstack.svg)
 ```bash
-openstack aggregate create --zone az1 prd-az1
-openstack aggregate create --zone az2 prd-az2
+openstack aggregate create --zone az0 lab-az0
+openstack aggregate create --zone az1 lab-az1
 
-openstack aggregate add host prd-az1 compute01
-openstack aggregate add host prd-az1 compute02
-openstack aggregate add host prd-az1 compute03
+openstack aggregate add host lab-az0 compute01
+openstack aggregate add host lab-az0 compute02
+openstack aggregate add host lab-az1 compute11
+openstack aggregate add host lab-az1 compute12
 
-openstack aggregate show prd-az1
-openstack aggregate show prd-az2
+openstack aggregate show lab-az0
+openstack aggregate show lab-az1
 
 openstack availability zone list --compute
 openstack availability zone list --network
@@ -1242,28 +1429,64 @@ openstack availability zone list --volume
 # Host Aggregates
 ![bg right:50% 30%](assets/pics/openstack/icon-openstack.svg)
 ```bash
+# create aggregates
 openstack aggregate create hw-type-A
 openstack aggregate create hw-type-B
 openstack aggregate create windows
 openstack aggregate create gpu
 
+# group hosts by HW
 openstack aggregate add host hw-type-A compute01
 openstack aggregate add host hw-type-A compute02
-openstack aggregate add host hw-type-A compute03
 openstack aggregate add host hw-type-B compute11
+openstack aggregate add host hw-type-B compute12
 
+# group hosts by licenses needed
 openstack aggregate add host windows compute01
 openstack aggregate add host windows compute11
 
+# group hosts by other features
 openstack aggregate add host gpu compute11
 
+# show aggregates
 openstack aggregate show windows
+openstack aggregate show gpu
 ```
 
 ---
 # Host Aggregates vs. Availability Zones
 ![bg right:50% 90%](assets/pics/openstack/openstack-host-aggregates-azs.jpg)
 
+---
+# Working with custom resources
+![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
+
+```bash
+# ✨ Create a new resource class                                            📋
+openstack resource class create CUSTOM_GPU_DEMO
+
+# ✨ Create a new resource provider
+openstack resource provider list
+openstack resource provider create --parent-provider <rp-uuid> compute11_gpu0
+openstack resource provider inventory set <new-rp-uuid> \
+  --resource CUSTOM_GPU_DEMO:max_unit=2 --resource CUSTOM_GPU_DEMO:total=2
+
+# 🩺 Check
+openstack resource provider list
+openstack resource provider inventory list <new-rp-uuid>
+
+# Create a new flavor
+openstack flavor create gpu.tiny --vcpus 1 --ram 512 --disk 1
+openstack flavor set gpu.tiny --property resources:CUSTOM_GPU_DEMO=1
+
+# 🚀 Deploy a server
+openstack server create --flavor gpu.tiny --image cirros --network demo-net gpu-vm1
+
+# 🩺 Check the allocation
+openstack server list  --long --all
+openstack resource provider usage show 77a535e1-58c1-44c0-acca-fbe2d6cc00d3
+
+```
 ---
 # Links
 - [OpenStack - Docs](https://docs.openstack.org)

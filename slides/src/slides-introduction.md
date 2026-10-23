@@ -37,7 +37,7 @@ mermaid.initialize({ startOnLoad: true, theme: 'default' });
 </script>
 
 # OpenStack with Ceph
-## Administration, Operations and Scaling
+## **Administration, Operations and Scaling**
 ![bg right:30% 50%](./assets/pics/openstack/icon-openstack.svg)
 ![bg right:30% 50%](assets/pics/common/icon-ceph.svg)
 

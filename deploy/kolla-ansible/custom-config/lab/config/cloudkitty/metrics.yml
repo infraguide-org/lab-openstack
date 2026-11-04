@@ -1,0 +1,16 @@
+#
+# Check that the metrics openstack_instance_active exists
+# It's defined in custom-config/lab/config/prometheus/cloudkitty.rules
+#
+metrics:
+  openstack_instance_active:
+    unit: instance
+    groupby:
+      - id
+      - name
+      - tenant_id
+    metadata:
+      - status
+      - hypervisor_hostname
+    extra_args:
+      aggregation_method: max

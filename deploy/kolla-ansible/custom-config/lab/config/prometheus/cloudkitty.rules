@@ -1,0 +1,5 @@
+groups:
+  - name: cloudkitty
+    rules:
+      - record: openstack_instance_active
+        expr: count by (id, name, status, hypervisor_hostname, tenant_id) (openstack_nova_server_status{status="ACTIVE"})

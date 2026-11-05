@@ -305,6 +305,21 @@ kolla-ansible check                -i inventory/lab
 ```
 
 ---
+# Ceph config
+![bg right:30% 90%](assets/pics/openstack/openstack-deploy-superuser.png)
+
+```bash
+# on deployment node execute and review the output                          📋
+find  custom-config/lab/ | grep ceph
+
+# review globals.yml globals.d/* in custom-config/lab/
+ls -lh  custom-config/lab/globals.*
+
+# review configs in custom-config/lab/config/
+ls -lh  custom-config/lab/config/
+```
+
+---
 # Bootstrap a Test Environment
 ![bg right:30% 90%](assets/pics/openstack/openstack-deploy-superuser.png)
 ```bash
@@ -464,8 +479,9 @@ kolla-ansible pull              -i inventory/lab --limit ~<COMPUTE_NAME>
 kolla-ansible reconfigure       -i inventory/lab --limit ~<COMPUTE_NAME> --skip-tags ovn
 kolla-ansible reconfigure       -i inventory/lab --tags  ovn
 
-# 🩺 check the compute host
+# 🩺 check the compute host, on the compute host
 docker exec -ti nova_libvirt virsh list  --all
+# 🩺 check the compute host from controller
 docker exec ovn_sb_db ovn-sbctl show
 
 # 🔌 Live-migrate a VM onto the compute host
@@ -519,8 +535,9 @@ kolla-ansible pull              -i inventory/lab --limit ~<COMPUTE_NAME>
 kolla-ansible deploy            -i inventory/lab --limit ~<COMPUTE_NAME> --skip-tags ovn
 kolla-ansible deploy            -i inventory/lab --tags  ovn
 
-# 🩺 check the compute host
+# 🩺 check the compute host, on the compute host
 docker exec -ti nova_libvirt virsh list  --all
+# 🩺 check the compute host from controller
 docker exec ovn_sb_db ovn-sbctl show
 
 # 🔌 Live-migrate a VM onto the compute host
@@ -660,7 +677,7 @@ kolla-ansible rabbitmq-reset-state -i inventory/lab/
 # Roll out the Next Release
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash
-# 📝 Update kolla-ansible                                                   📋
+# 📝 Update kolla-ansible  on deployment host                               📋
 CUR_KA_VER=$(pip list | grep kolla | awk '{print $NF}' | awk -F . '{print $1}')
 
 echo $VIRTUAL_ENV
@@ -677,7 +694,9 @@ kolla-ansible install-deps
 rm -rf ~/venv/openstack
 ln -s $VIRTUAL_ENV ~/venv/openstack
 
-# relogin and check $VIRTUAL_ENV
+# reload/relogin and check the environment
+source ~/.profile
+cd ~/openstack/
 echo $VIRTUAL_ENV
 which kolla-ansible
 ```
@@ -1100,10 +1119,10 @@ openstack server create                  \
 
 ```bash
 # Create a config for a VLAN interface                                      📋
-# on the testing node as root
+# on the testing node
 myid=$(cat /etc/env.json  | jq .id)
 
-cat > /etc/netplan/80-vlan.yaml <<EOF
+sudo tee /etc/netplan/80-vlan.yaml <<EOF
 network:
   version: 2
   vlans:
@@ -1117,7 +1136,7 @@ network:
       link-local: []
 EOF
 
-chmod 600 /etc/netplan/80-vlan.yaml
+sudo chmod 600 /etc/netplan/80-vlan.yaml
 
 netplan apply
 ```

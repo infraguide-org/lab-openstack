@@ -1240,6 +1240,7 @@ docker exec ovn_nb_db ovn-nbctl lrp-get-gateway-chassis lrp-<PORT_ID>
 
 <style scoped>
   table { font-size: 15px; }
+  th { background-color: #2B6CB0; color: #FFFFFF; }
 </style>
 | # | Use case                                       | Network node used?    |
 |---|------------------------------------------------|-----------------------|

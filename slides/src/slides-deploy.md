@@ -1229,6 +1229,47 @@ docker exec ovn_nb_db ovn-nbctl lrp-get-gateway-chassis lrp-<PORT_ID>
 [//]: # (![bg right:50% 90%]\(assets/pics/openstack/network-namespaces-funtoo.png\))
 
 ---
+# Networking
+## **Regular Router**
+![bg right:60% 80%](assets/pics/openstack/regular-router-traffic-flow.svg)
+
+---
+# Networking
+## **Distributed Virtual Router**
+![bg right:40% 40%](assets/pics/openstack/icon-openstack.svg)
+
+| # | Use case                                       | Network node used?    |
+|---|------------------------------------------------|-----------------------|
+| 1 | VM to a VM in another OpenStack network        | No                    |
+| 2 | VM without floating IP to the external network | **Yes**               |
+| 3 | VM with floating IP to the external network    | No                    |
+| 4 | External host to the floating IP of a VM       | No                    |
+
+---
+# Networking
+## **DVR**
+### **VM to other openstack network**
+![bg right:60% 80%](assets/pics/openstack/dvr-traffic-flow-vm_to_other_network.svg)
+
+---
+# Networking
+## **DVR**
+### **VM to external network with SNAT**
+![bg right:60% 80%](assets/pics/openstack/dvr-traffic-flow-vm_to_external_snat.svg)
+
+---
+# Networking
+## **DVR**
+### **Floating IP inbound**
+![bg right:60% 80%](assets/pics/openstack/dvr-traffic-flow-floating_ip_inbound.svg)
+
+---
+# Networking
+## **DVR**
+### **Floating IP outbound**
+![bg right:60% 80%](assets/pics/openstack/dvr-traffic-flow-vm_floating_ip_outbound.svg)
+
+---
 # User Config with Cloud-Init
 ![bg right:30% 50%](assets/pics/openstack/icon-openstack.svg)
 ```bash

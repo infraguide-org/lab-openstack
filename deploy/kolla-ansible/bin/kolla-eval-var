@@ -1,0 +1,53 @@
+#!/bin/bash
+# kolla-eval-var - print the evaluated value of a Kolla-Ansible variable
+# usage: kolla-eval-var VAR [HOST]
+#   VAR   variable name or Jinja expression, e.g. kolla_enable_tls_external
+#   HOST  inventory host to evaluate on (default: localhost)
+#         host-dependent variables (interface addresses) need a real host
+#         and gathered facts, e.g. kolla-eval-var api_interface_address controller01.mgmt.lab.nfgd.net
+# env overrides: KOLLA_VENV (default: $VIRTUAL_ENV), CFG, INVENTORY
+set -u
+
+[ $# -ge 1 ] && [ $# -le 2 ] || { sed -n '2,8p' "$0"; exit 1; }
+VAR=$1
+HOST=${2:-localhost}
+
+KOLLA_VENV=${KOLLA_VENV:-${VIRTUAL_ENV:-}}
+[ -n "$KOLLA_VENV" ] || { echo "no virtualenv active: activate it or set KOLLA_VENV" >&2; exit 1; }
+CFG=${CFG:-./custom-config/lab}
+INVENTORY=${INVENTORY:-inventory/lab}
+
+GV=$KOLLA_VENV/share/kolla-ansible/ansible/group_vars/all
+ANSIBLE=$KOLLA_VENV/bin/ansible
+[ -d "$GV" ] || { echo "group_vars not found: $GV" >&2; exit 1; }
+[ -x "$ANSIBLE" ] || { echo "ansible not found: $ANSIBLE" >&2; exit 1; }
+[ -d "$CFG" ] || { echo "config dir not found: $CFG (run from the deploy dir or set CFG)" >&2; exit 1; }
+
+# defaults first, then your files, so yours win
+ARGS=()
+for f in "$GV"/*.yml; do ARGS+=(-e "@$f"); done
+[ -f "$CFG/globals.yml" ] && ARGS+=(-e "@$CFG/globals.yml")
+for f in "$CFG"/globals.d/*.yml; do [ -f "$f" ] && ARGS+=(-e "@$f"); done
+ARGS+=(-e "node_custom_config=$CFG/config")
+
+out=$("$ANSIBLE" -i "$INVENTORY" "$HOST" -m debug -a "msg={{ $VAR }}" "${ARGS[@]}" 2>/dev/null)
+
+# first line looks like: host | SUCCESS => { ...json... }
+json=${out#*=> }
+value=$(printf '%s' "$json" | python3 -c '
+import sys, json
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    sys.exit(2)
+if "msg" in d:
+    m = d["msg"]
+    print(m if isinstance(m, str) else json.dumps(m))
+else:
+    print("ERROR: " + str(d.get("failed") or d))
+' 2>/dev/null) || {
+  echo "$VAR = <could not evaluate on $HOST>" >&2
+  printf '%s\n' "$out" | head -5 | cut -c1-250 >&2
+  exit 1
+}
+echo "$VAR = $value"

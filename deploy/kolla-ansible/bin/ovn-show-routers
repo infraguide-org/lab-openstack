@@ -1,0 +1,46 @@
+#!/bin/bash
+# router-gw - routers with gateway IP, gateway port, active chassis and failover order
+# needs: openstack, ovn-nbctl, ovn-sbctl, jq (on the deployment host)
+# env:   OVN_NB_DB / OVN_SB_DB must be set (comma-separated list of all 3 controllers)
+set -u
+
+[ -n "${OVN_NB_DB:-}" ] && [ -n "${OVN_SB_DB:-}" ] || { echo "WARNING: OVN_NB_DB and/or OVN_SB_DB not set" >&2; exit 1; }
+
+for c in openstack ovn-nbctl ovn-sbctl jq; do
+  command -v "$c" >/dev/null || { echo "missing command: $c" >&2; exit 1; }
+done
+
+tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+
+# 1. OpenStack side
+openstack router list --long -f json > "$tmp/r.json" || exit 1
+openstack port list --device-owner network:router_gateway --long -f json > "$tmp/p.json" || exit 1
+
+# 2. OVN SB: gateway port id -> chassis that holds the cr-lrp port
+ovn-sbctl show 2>/dev/null \
+ | awk '/^Chassis /{c=$2; gsub(/"/,"",c)} /Port_Binding cr-lrp-/{p=$2; gsub(/"/,"",p); sub(/^cr-lrp-/,"",p); print p, c}' \
+ | jq -R -s 'split("\n") | map(select(length>0) | split(" ") | {(.[0]): .[1]}) | add // {}' > "$tmp/a.json"
+[ -s "$tmp/a.json" ] || echo "{}" > "$tmp/a.json"
+
+# 3. OVN NB: gateway port id -> candidates with priority, highest first
+: > "$tmp/c.txt"
+for port in $(jq -r '.[].ID' "$tmp/p.json"); do
+  cand=$(ovn-nbctl lrp-get-gateway-chassis "lrp-$port" 2>/dev/null \
+         | awk '{n=$1; sub(/^.*_/,"",n); print $2":"n}' | sort -t: -k1,1nr \
+         | awk -F: '{printf "%s%s(%s)", s, $2, $1; s="->"}')
+  printf '%s\t%s\n' "$port" "${cand:--}" >> "$tmp/c.txt"
+done
+jq -R -s 'split("\n") | map(select(length>0) | split("\t") | {(.[0]): .[1]}) | add // {}' "$tmp/c.txt" > "$tmp/cand.json"
+
+# 4. join everything by gateway IP
+jq -r -n --slurpfile r "$tmp/r.json" --slurpfile p "$tmp/p.json" \
+         --slurpfile a "$tmp/a.json" --slurpfile c "$tmp/cand.json" '
+  ($p[0] | map({key: .["Fixed IP Addresses"][0].ip_address, value: .}) | from_entries) as $gw
+  | $r[0][]
+  | (.["External gateway info"] | if type == "string" then fromjson else . end) as $g
+  | ($g.external_fixed_ips[0].ip_address // "-") as $ip
+  | ($gw[$ip].ID // "-") as $port
+  | [.Name, .ID, $ip, $port, ($a[0][$port] // "-"), ($c[0][$port] // "-")]
+  | @tsv' \
+ | (echo -e "ROUTER\tROUTER_ID\tGW_IP\tGW_PORT\tACTIVE\tFAILOVER_ORDER"; cat) | column -t -s$'\t'
+

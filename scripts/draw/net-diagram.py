@@ -74,28 +74,48 @@ import yaml
 
 # --- fixed layout parameters (all deterministic, no random values) ---
 FONT = "DejaVu Sans, Arial, sans-serif"
+# The diagram is usually shown scaled down to the width of a page column (~870px), so
+# every pixel of width shrinks the text. The fonts that do not add to the width (subnets,
+# group names) are large, the spacing between hosts and groups is tight.
 P = {
-    "MARGIN": 20,
-    "BOX_W": 108, "BOX_H": 40,
-    "HOST_GAP": 12,        # distance between hosts inside a group
-    "GROUP_GAP": 32,       # distance between groups
-    "GAP_W": 30,           # width of the "..." placeholder
+    "MARGIN": 12,
+    "BOX_H": 44,
+    "BOX_PAD": 8,          # space left and right of the host name inside its box
+    "HOST_GAP": 10,        # distance between hosts inside a group
+    "GROUP_GAP": 24,       # distance between groups
+    "GAP_W": 26,           # width of the "..." placeholder
     "GROUP_PAD": 8,        # padding of the group frame
     "TITLE_H": 44,
-    "GROUP_LABEL_H": 22,
+    "GROUP_LABEL_H": 26,
     "NET_TOP_GAP": 46,     # distance host boxes -> first network
-    "NET_STEP": 56,        # distance between networks
+    "NET_STEP": 60,        # distance between networks
     "NET_BOTTOM": 36,
     "DOT_R": 6,
-    "FS_TITLE": 24, "FS_NET": 15, "FS_SUB": 12, "FS_GROUP": 13, "FS_HOST": 15,
+    "FS_TITLE": 24, "FS_NET": 18, "FS_SUB": 16, "FS_GROUP": 17, "FS_HOST": 16,
 }
+EM_BOLD, EM_TEXT = 0.68, 0.56   # estimated average character width in em (DejaVu Sans)
+# advance widths of DejaVu Sans in 1/2048 em, to size the host boxes tightly
+GLYPH_W = dict(zip("abcdefghijklmnopqrstuvwxyz0123456789-._",
+                   [1255, 1300, 1126, 1300, 1260, 721, 1300, 1298, 569, 569, 1186, 569, 1995,
+                    1298, 1253, 1300, 1300, 842, 1067, 803, 1298, 1212, 1675, 1212, 1212, 1075]
+                   + [1303] * 10 + [739, 651, 1024]))
+
+
+def text_w(s, fs):
+    """Width of s in px at font size fs; characters not in GLYPH_W count as 0.7 em."""
+    return sum(GLYPH_W.get(c, 1434) for c in s) / 2048 * fs
 
 
 def params(cfg):
-    """Drawing parameters; the label column is sized to the longest network label."""
+    """Drawing parameters; the label column is sized to the longest network label or
+    subnet, the host boxes to the longest host name."""
     p = dict(P)
-    longest = max((len(n["label"]) for n in cfg["networks"]), default=0)
-    p["LABEL_W"] = int(longest * 0.68 * p["FS_NET"]) + 24     # bold, ~0.68 em per char
+    label = max((len(n["label"]) * EM_BOLD * p["FS_NET"] for n in cfg["networks"]), default=0)
+    sub = max((len(n.get("sub", "")) * EM_TEXT * p["FS_SUB"] for n in cfg["networks"]), default=0)
+    p["LABEL_W"] = int(max(label, sub)) + 16
+    names = [h["name"] for g in cfg["groups"] for h in g["hosts"] if not h.get("gap")]
+    widest = max((text_w(x, p["FS_HOST"]) for x in names), default=0)
+    p["BOX_W"] = int(widest + 0.999) + 2 * p["BOX_PAD"]
     return p
 
 
@@ -316,7 +336,7 @@ def render(cfg):
 
     # group names (drawn after the lines, with a white halo so no line strikes through)
     for g in groups:
-        a(f'<text x="{g["x0"] - p["GROUP_PAD"] + 8}" y="{y_frame + 16}" '
+        a(f'<text x="{g["x0"] - p["GROUP_PAD"] + 8}" y="{y_frame + p["FS_GROUP"] + 3}" '
           f'font-size="{p["FS_GROUP"]}" fill="#868e96" stroke="#ffffff" '
           f'stroke-width="5" stroke-linejoin="round" paint-order="stroke">'
           f'{escape(g["name"])}</text>')
@@ -328,7 +348,7 @@ def render(cfg):
         fill, st, tx = ("#e6fcf5", "#212529", "#212529") if not dim else (G_BOX, G_TXT, G_TXT)
         a(f'<rect x="{it["x"]}" y="{y_box}" width="{p["BOX_W"]}" height="{p["BOX_H"]}" rx="8" '
           f'fill="{fill}" stroke="{st}" stroke-width="2"/>')
-        a(f'<text x="{cx}" y="{y_box + p["BOX_H"] / 2 + 5}" font-size="{p["FS_HOST"]}" '
+        a(f'<text x="{cx}" y="{y_box + p["BOX_H"] / 2 + round(p["FS_HOST"] * 0.35)}" font-size="{p["FS_HOST"]}" '
           f'text-anchor="middle" fill="{tx}">{escape(it["name"])}</text>')
 
     a("</svg>")

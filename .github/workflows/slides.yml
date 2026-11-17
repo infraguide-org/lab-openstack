@@ -40,7 +40,7 @@ jobs:
         run: slides/scripts/build.sh slides/src html pdf pptx
 
       - name: Create index.json and index.html
-        run: slides/scripts/make-index.sh "${GITHUB_REPOSITORY#*/lab-}" slides/src slides/dist status/build.yml conf/env.yaml
+        run: slides/scripts/make-index.sh "${GITHUB_REPOSITORY#*/lab-}" slides/src slides/dist status/build.yml conf/env.yaml conf/net-diagram.yaml
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

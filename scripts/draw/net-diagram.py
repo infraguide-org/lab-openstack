@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 """Draw a network diagram (SVG) directly from env.yaml.
 
 Single file, three parts: build() turns env.yaml + layout file into a diagram

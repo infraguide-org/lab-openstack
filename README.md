@@ -15,22 +15,28 @@ The hypervisor, the networks and the virtual machines of the environment are cre
 ## Repository layout
 | Path | Content |
 |---|---|
-| `conf/` | `env.yaml` - network and host layout of the environment, `tmuxp.yaml` - tmux session with a window per host group |
+| `conf/` | `env.yaml` - network and host layout of the environment, `net-diagram.yaml` - what the network diagrams show, `tmuxp.yaml` - tmux session with a window per host group |
 | `deploy/kolla-ansible/` | kolla-ansible inventory (`inventory/lab`) and configuration (`custom-config/lab`) |
 | `deploy/cephadm/` | cephadm configuration of the Ceph cluster |
 | `modules/` | additional modules: `automation` (Ansible, Terraform, testinfra) and `testing` (Tempest) |
-| `scripts/` | helper scripts for the nodes (`helpers`, `infra`) |
+| `scripts/` | helper scripts for the nodes (`helpers`, `infra`) and the network diagrams (`draw`) |
 | `slides/` | slide sources (`src`) and the scripts that build the decks (`build.sh`) and the index page with `index.json` (`make-index.sh`) in `scripts` |
 | `status/` | `build.yml` - result of the automatic lab build, shown on the lab page |
 
 ## Environment
-Overview:
+Overview, rendered from `conf/env.yaml` and `conf/net-diagram.yaml` by the slides workflow:
 
-![Environment](slides/src/assets/openstack/env.svg)
+![Environment](https://infraguide-org.github.io/lab-openstack/assets/openstack/env.svg)
 
 OpenStack:
 
 ![OpenStack](slides/src/assets/full-environment.drawio.svg)
+
+To render the diagrams locally (needs python3 with PyYAML):
+
+```bash
+scripts/draw/net-diagrams.sh conf/env.yaml conf/net-diagram.yaml slides/src/assets/openstack
+```
 
 ## Slides
 The slides are published on GitHub Pages: [infraguide-org.github.io/lab-openstack](https://infraguide-org.github.io/lab-openstack/)
@@ -55,7 +61,7 @@ The page at [infraguide-org.github.io/lab-openstack](https://infraguide-org.gith
 | Section | Source | Content |
 |---|---|---|
 | Slides | `slides/src/*.md` | The decks, ordered by the `order` field in their front matter |
-| Environment | `slides/src/assets/openstack/env.svg` | Diagram of the environment, listed as `diagram` in `index.json` |
+| Environment | `conf/env.yaml`, `conf/net-diagram.yaml` | Network diagram `assets/openstack/env.svg`, listed as `diagram` in `index.json`, and one diagram per network in focus mode (`env-<id>.svg`) |
 | Hosts | `conf/env.yaml` (`server_conf`) | Infrastructure and lab hosts with vCPU, RAM, disks and air-gap setting, listed as `hosts` in `index.json` |
 | Build | `status/build.yml` | Result of the automatic lab build |
 

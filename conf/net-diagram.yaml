@@ -9,10 +9,10 @@ networks:
   - {id: services,     label: Services,      color: "#2f9e44", side: top}
   - {id: controlplane, label: Control Plane, color: "#e8590c", side: top}
   - {id: lbmanagement, label: LB Management, color: "#0c8599", side: top}
-  - {id: dataplane,    label: Data Plane,    color: "#e03131"}
-  - {id: storage0,     label: Storage,       color: "#9c36b5"}
+  - {id: dataplane,    label: Data Plane,    color: "#7048e8"}
+  - {id: storage0,     label: Storage,       color: "#d6336c"}
   - {id: public,       label: Public,        color: "#1971c2"}
-  - {id: external,     label: External,      color: "#5c940d"}
+  - {id: external,     label: External,      color: "#795548"}
 # host_groups: hosts = names or patterns from server_conf (order as in env.yaml)
 #   scalable: true -> only the first and the last host of the group, "..." in between
 host_groups:

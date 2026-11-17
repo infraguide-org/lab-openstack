@@ -1,5 +1,4 @@
-title: OpenStack Umgebung
-label_width: 230
+# title: OpenStack Umgebung
 show_addr: true
 # Only the networks listed here are drawn (id = key in network_conf of env.yaml).
 # side:  top | bottom   (default: bottom)

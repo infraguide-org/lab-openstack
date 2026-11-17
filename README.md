@@ -50,7 +50,7 @@ The slides are published on GitHub Pages: [infraguide-org.github.io/lab-openstac
 
 Every deck is available as HTML, PDF and PPTX, for example
 `https://infraguide-org.github.io/lab-openstack/slides-deploy.pdf`.
-[`index.json`](https://infraguide-org.github.io/lab-openstack/index.json) lists the decks in their order, all files, the hosts of the environment (`hosts`) and the path of the environment diagram (`diagram`) in a machine-readable form.
+[`index.json`](https://infraguide-org.github.io/lab-openstack/index.json) lists the decks in their order, all files, the hosts of the environment (`hosts`), the path of the environment diagram (`diagram`) and the diagrams per network (`focus_diagrams`: `id`, `label`, `path`) in a machine-readable form.
 The slides are also part of [infraguide.org](https://infraguide.org/learn/openstack/).
 
 ## Lab page
@@ -61,7 +61,7 @@ The page at [infraguide-org.github.io/lab-openstack](https://infraguide-org.gith
 | Section | Source | Content |
 |---|---|---|
 | Slides | `slides/src/*.md` | The decks, ordered by the `order` field in their front matter |
-| Environment | `conf/env.yaml`, `conf/net-diagram.yaml` | Network diagram `assets/openstack/env.svg`, listed as `diagram` in `index.json`, and one diagram per network in focus mode (`env-<id>.svg`) |
+| Environment | `conf/env.yaml`, `conf/net-diagram.yaml` | Network diagram `assets/openstack/env.svg`, listed as `diagram` in `index.json`, and one diagram per network in focus mode (`env-<id>.svg`), listed as `focus_diagrams` |
 | Hosts | `conf/env.yaml` (`server_conf`) | Infrastructure and lab hosts with vCPU, RAM, disks and air-gap setting, listed as `hosts` in `index.json` |
 | Build | `status/build.yml` | Result of the automatic lab build |
 

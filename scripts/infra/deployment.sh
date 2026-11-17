@@ -17,7 +17,9 @@ apt-get update
 
 apt-get install -y \
   crudini          \
+  make             \
   ovn-common       \
+  skopeo           \
   </dev/null
 
 SYS_USER_NAME=deploy

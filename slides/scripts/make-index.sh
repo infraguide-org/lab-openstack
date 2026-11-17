@@ -8,7 +8,7 @@
 # The optional build.yml (status/build.yml) adds a Build section to index.html,
 # the optional env.yaml (conf/env.yaml) adds a Hosts section and a hosts object in index.json.
 # An environment diagram at assets/<lab>/env.svg adds an Environment section and a diagram
-# entry (its path) in index.json.
+# entry (its path) in index.json, diagrams at assets/<lab>/env-<id>.svg add links per network.
 set -euo pipefail
 
 lab=$1
@@ -112,6 +112,15 @@ HTML
   if [ -n "$diagram" ]; then
     echo '<h2>Environment</h2>'
     echo "<img class=\"diagram\" src=\"$diagram\" alt=\"Lab environment diagram\">"
+    links=""
+    for f in "assets/$lab"/env-*.svg; do
+      [ -f "$f" ] || continue
+      id=${f##*/env-}
+      links+="${links:+ · }<a href=\"$f\">${id%.svg}</a>"
+    done
+    if [ -n "$links" ]; then
+      echo "<p>Per network: $links</p>"
+    fi
   fi
   if [ -n "$env" ]; then
     echo '<h2>Hosts</h2>'

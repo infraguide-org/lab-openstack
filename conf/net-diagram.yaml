@@ -14,7 +14,7 @@ networks:
 # host_groups: hosts = names or patterns from server_conf (order as in env.yaml)
 #   scalable: true -> only the first and the last host of the group, "..." in between
 host_groups:
-  - {name: Controller, hosts: ["controller*"]}
+  - {name: Control,    hosts: ["controller*"]}
   - {name: Network,    hosts: ["network*"]}
   - {name: Compute,    hosts: ["compute*"], scalable: true}
-  - {name: Sonstige,   hosts: [monitor01, testing]}
+  - {name: Othere,     hosts: [monitor01, testing]}

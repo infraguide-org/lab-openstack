@@ -1,3 +1,5 @@
+# Source: https://github.com/infraguide-org/lab-openstack
+# Copyright (c) 2026 infraguide.org, MIT License
 # title: OpenStack Umgebung
 show_addr: true
 # Only the networks listed here are drawn (id = key in network_conf of env.yaml).
@@ -17,4 +19,4 @@ host_groups:
   - {name: Control,    hosts: ["controller*"]}
   - {name: Network,    hosts: ["network*"]}
   - {name: Compute,    hosts: ["compute*"], scalable: true}
-  - {name: Othere,     hosts: [monitor01, testing]}
+  - {name: Other,      hosts: [monitor01, testing]}

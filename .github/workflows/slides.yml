@@ -10,6 +10,8 @@ on:
       - "slides/scripts/**"
       - "status/**"
       - "conf/env.yaml"
+      - "conf/net-diagram.yaml"
+      - "scripts/draw/**"
       - ".github/workflows/slides.yml"
   workflow_dispatch:
 
@@ -28,6 +30,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Render network diagrams
+        run: scripts/draw/net-diagrams.sh conf/env.yaml conf/net-diagram.yaml "slides/src/assets/${GITHUB_REPOSITORY#*/lab-}"
 
       - name: Build html, pdf and pptx
         env:

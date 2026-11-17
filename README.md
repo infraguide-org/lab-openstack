@@ -19,7 +19,7 @@ The hypervisor, the networks and the virtual machines of the environment are cre
 | `deploy/kolla-ansible/` | kolla-ansible inventory (`inventory/lab`) and configuration (`custom-config/lab`) |
 | `deploy/cephadm/` | cephadm configuration of the Ceph cluster |
 | `modules/` | additional modules: `automation` (Ansible, Terraform, testinfra) and `testing` (Tempest) |
-| `scripts/` | helper scripts for the nodes (`helpers`, `infra`) and the network diagrams (`draw`) |
+| `scripts/` | helper scripts for the nodes (`helpers`, `infra`) |
 | `slides/` | slide sources (`src`) and the scripts that build the decks (`build.sh`) and the index page with `index.json` (`make-index.sh`) in `scripts` |
 | `status/` | `build.yml` - result of the automatic lab build, shown on the lab page |
 
@@ -32,10 +32,11 @@ OpenStack:
 
 ![OpenStack](slides/src/assets/full-environment.drawio.svg)
 
+The scripts that draw the diagrams are in [setup-sandbox](https://github.com/infraguide-org/setup-sandbox) (`scripts/draw`).
 To render the diagrams locally (needs python3 with PyYAML):
 
 ```bash
-scripts/draw/net-diagrams.sh conf/env.yaml conf/net-diagram.yaml slides/src/assets/openstack
+/infraguide/setup-sandbox/scripts/draw/net-diagrams.sh conf/env.yaml conf/net-diagram.yaml slides/src/assets/openstack
 ```
 
 ## Slides

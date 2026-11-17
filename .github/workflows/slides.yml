@@ -11,7 +11,6 @@ on:
       - "status/**"
       - "conf/env.yaml"
       - "conf/net-diagram.yaml"
-      - "scripts/draw/**"
       - ".github/workflows/slides.yml"
   workflow_dispatch:
 
@@ -31,8 +30,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout setup-sandbox
+        uses: actions/checkout@v4
+        with:
+          repository: infraguide-org/setup-sandbox
+          path: .setup-sandbox
+
       - name: Render network diagrams
-        run: scripts/draw/net-diagrams.sh conf/env.yaml conf/net-diagram.yaml "slides/src/assets/${GITHUB_REPOSITORY#*/lab-}"
+        run: .setup-sandbox/scripts/draw/net-diagrams.sh conf/env.yaml conf/net-diagram.yaml "slides/src/assets/${GITHUB_REPOSITORY#*/lab-}"
 
       - name: Build html, pdf and pptx
         env:
